@@ -54,7 +54,7 @@ const FormContainer = styles.div`
         gap: 2rem;
         flex-direction: column;
         background-color: black;
-        padding: 3rem 6rem;
+        padding:3rem 5rem;
         border-radius: 3rem;
         input{
             background: transparent;
