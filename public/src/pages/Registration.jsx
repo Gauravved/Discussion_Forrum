@@ -1,10 +1,19 @@
-import React, {useEffect, useState} from 'react'
+import React, { useState } from 'react'
 import styles from 'styled-components'
-import {Link} from 'react-router-dom'
-import {ToastContainer, toast} from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
+import { Link, useNavigate } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import axios from 'axios' // axios is one of the most famous library of react js for sending Http request and get response from the rest points oor the apis
+import { registrationRoute } from '../utils/APIRoute'
 
 function Registration() {
+    const navigate = useNavigate();
+    const toastCss = {
+        position: "top-right",
+        theme: "dark",
+        autoClose: 5000,
+        pauseOnHover: true,
+    };
     const [values, setValues] = useState({
         username: "",
         email: "",
@@ -12,36 +21,58 @@ function Registration() {
         confirmPassword: "",
     });
 
-    const submitHandler = (event) => {
+    const submitHandler = async (event) => { // async is used for asyncronous functions here submitHandlers is async function. 
         event.preventDefault();
-        validationHandler();
-    };
-    const changeHandler = (event)=>{
-        setValues({...values, [event.target.name]: event.target.value });
-    };
-    const validationHandler = ()=>{
-        const {password, confirmPassword, username, email} = values;
-        if(password!== confirmPassword){
-            toast.error("Passwords does not match!", {
-                position: "top-right",
-                theme: "dark",
-                autoClose: 5000,
-                pauseOnHover: true,
-            });
+        if (validationHandler()) {
+            const { username, email, password } = values;
+            console.log(registrationRoute);
+            const { data } = await axios.post(registrationRoute, {
+                username, email, password
+            }).then((result) => {
+                console.log(result)
+            }).catch((err) => {
+                console.log(err.message);
+            }); // await is used to make the function wait for the promise or the result
+            if (data.status === false) {
+                toast.error(data.msg, toastCss);
+            }
+            if (data.status === true) {
+                localStorage.setItem('chat-user', JSON.stringify(data.user));
+            }
+            navigate("/chats");
         }
+    };
+    const changeHandler = (event) => {
+        setValues({ ...values, [event.target.name]: event.target.value });
+    };
+    const validationHandler = () => {
+        const { password, confirmPassword, username, email } = values;
+        if (password !== confirmPassword) {
+            toast.error("Passwords does not match!", toastCss);
+            return false;
+        }
+        else if (username.length < 5) {
+            toast.error("Username should contain 5 characters atleast", toastCss);
+            return false;
+        }
+        if (email.length === "") {
+            toast.error("Email is required", toastCss);
+            return false;
+        }
+        return true;
     }
     return (
         <>
             <ToastContainer />
             <FormContainer>
-                <form onSubmit={(event)=>{submitHandler(event)}}>
+                <form onSubmit={(event) => { submitHandler(event) }}>
                     <div className="heading">
                         <h1>Smart Room</h1>
                     </div>
-                    <input type="text" name="username" placeholder='Username' onChange={(e)=>{changeHandler(e)}} />
-                    <input type="email" name="email" placeholder='Email' onChange={(e)=>{changeHandler(e)}} />
-                    <input type="password" name="password" placeholder='Password' onChange={(e)=>{changeHandler(e)}} />
-                    <input type="password" name='confirmPassword' placeholder='Confirm Password' onChange={(e)=>{changeHandler(e)}} />
+                    <input type="text" name="username" placeholder='Username' onChange={(e) => { changeHandler(e) }} required />
+                    <input type="email" name="email" placeholder='Email' onChange={(e) => { changeHandler(e) }} required />
+                    <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} minLength="8" required />
+                    <input type="password" name='confirmPassword' placeholder='Confirm Password' onChange={(e) => { changeHandler(e) }} required />
                     <button type='submit'>Create Account</button>
                     <span>Already have an account? <Link to="/login">Login</Link> </span>
                 </form>
@@ -95,10 +126,10 @@ const FormContainer = styles.div`
                 border-bottom: 2px solid blue;
             }
             &.visited{ 
-                color: white;
+                color: black;
                 border: 1px solid grey;
                 border-bottom: 2px solid white;
-                background: transparent;
+                background: white;
             }
         }
         button{

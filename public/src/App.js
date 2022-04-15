@@ -1,5 +1,5 @@
 import React from 'react'
-import Registeration from './pages/Registration.jsx'
+import Registration from './pages/Registration.jsx'
 import Login from './pages/Login.jsx'
 import Chats from './pages/chat.jsx'
 import {BrowserRouter as Routers, Route, Routes} from 'react-router-dom'
@@ -9,7 +9,7 @@ export default function App() {
     <div>
       <Routers>
         <Routes>
-          <Route path='/register' element={<Registeration />} />
+          <Route path='/register' element={<Registration />} />
           <Route path='/login' element={<Login />}/>
           <Route path='/chats' element={<Chats />} />
         </Routes>
