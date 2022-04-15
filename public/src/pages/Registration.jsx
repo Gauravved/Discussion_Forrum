@@ -1,28 +1,49 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import styles from 'styled-components'
 import {Link} from 'react-router-dom'
+import {ToastContainer, toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 
 function Registration() {
+    const [values, setValues] = useState({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
+
     const submitHandler = (event) => {
         event.preventDefault();
-
+        validationHandler();
     };
     const changeHandler = (event)=>{
-
+        setValues({...values, [event.target.name]: event.target.value });
     };
+    const validationHandler = ()=>{
+        const {password, confirmPassword, username, email} = values;
+        if(password!== confirmPassword){
+            toast.error("Passwords does not match!", {
+                position: "top-right",
+                theme: "dark",
+                autoClose: 5000,
+                pauseOnHover: true,
+            });
+        }
+    }
     return (
         <>
+            <ToastContainer />
             <FormContainer>
-                <form onSubmit={(event) => { submitHandler(event) }}>
+                <form onSubmit={(event)=>{submitHandler(event)}}>
                     <div className="heading">
                         <h1>Smart Room</h1>
                     </div>
-                    <input type="text" placeholder='Username' name='uname' onChange={(event) => { changeHandler(event) }} />
-                    <input type="email" placeholder='Email' name='emailAddress' onChange={(event) => { changeHandler(event) }} />
-                    <input type="password" placeholder='Password' name='pass' onChange={(event) => { changeHandler(event) }} />
-                    <input type="password" placeholder='Confirm Password' name='conPass' onChange={(event) => { changeHandler(event) }} />
-                    <button type="submit"> Create Account </button>
-                    <span>Already have an account? <Link to='/login'>Login</Link> </span>
+                    <input type="text" name="username" placeholder='Username' onChange={(e)=>{changeHandler(e)}} />
+                    <input type="email" name="email" placeholder='Email' onChange={(e)=>{changeHandler(e)}} />
+                    <input type="password" name="password" placeholder='Password' onChange={(e)=>{changeHandler(e)}} />
+                    <input type="password" name='confirmPassword' placeholder='Confirm Password' onChange={(e)=>{changeHandler(e)}} />
+                    <button type='submit'>Create Account</button>
+                    <span>Already have an account? <Link to="/login">Login</Link> </span>
                 </form>
             </FormContainer>
         </>
@@ -52,17 +73,19 @@ const FormContainer = styles.div`
     form{
         display: flex;
         gap: 2rem;
+        justify-content: center;
+        align-items: center;
         flex-direction: column;
         background-color: black;
-        padding:3rem 5rem;
+        padding: 3rem 7rem;
         border-radius: 3rem;
         input{
             background: transparent;
             outline: none;
+            width: 110%;
             border: 1px solid grey;
             border-bottom: 2px solid white;
             padding: 13px;
-            width: 100%;
             border-radius: 5px;
             color: white;
             font-size: 20px;
@@ -71,13 +94,18 @@ const FormContainer = styles.div`
                 border: 1px solid blue;
                 border-bottom: 2px solid blue;
             }
+            &.visited{ 
+                color: white;
+                border: 1px solid grey;
+                border-bottom: 2px solid white;
+                background: transparent;
+            }
         }
         button{
             background-color:white;
             color: black;
             padding: 10px;
-            width: 100%;
-            margin-left: 13px;
+            width: 120%;
             justify-content:center;
             align-items:center;
             border-radius: 5px;
@@ -94,7 +122,7 @@ const FormContainer = styles.div`
         }
         span{
             color: white;
-            width: 100%;
+            width: 110%;
             font-size: 16px;
             a{
                 color: grey;
