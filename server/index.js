@@ -1,12 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const http = require('http');
 const userRoute = require('./routes/userRoute');
 
 const app = express();
 require('dotenv').config();
 app.use(cors());
-app.use(express.json);
+app.use(express.json());
 app.use('/api/auth', userRoute);
 
 mongoose.connect(process.env.MONGO_URL, {
@@ -18,6 +19,6 @@ mongoose.connect(process.env.MONGO_URL, {
     console.log(err.message);
 });
 
-const server = app.listen(process.env.PORT, ()=>{
-    console.log("Server started at "+process.env.PORT);
-} );
+const server = http.createServer(app);
+server.listen(process.env.PORT);
+console.log("Server at:"+process.env.PORT);

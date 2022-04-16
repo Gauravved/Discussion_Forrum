@@ -28,18 +28,14 @@ function Registration() {
             console.log(registrationRoute);
             const { data } = await axios.post(registrationRoute, {
                 username, email, password
-            }).then((result) => {
-                console.log(result)
-            }).catch((err) => {
-                console.log(err.message);
             }); // await is used to make the function wait for the promise or the result
             if (data.status === false) {
                 toast.error(data.msg, toastCss);
             }
             if (data.status === true) {
                 localStorage.setItem('chat-user', JSON.stringify(data.user));
+                navigate("/chats");
             }
-            navigate("/chats");
         }
     };
     const changeHandler = (event) => {
