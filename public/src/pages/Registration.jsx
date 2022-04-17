@@ -34,7 +34,7 @@ function Registration() {
             }
             if (data.status === true) {
                 localStorage.setItem('chat-user', JSON.stringify(data.user));
-                navigate("/chats");
+                navigate("/");
             }
         }
     };
@@ -43,7 +43,10 @@ function Registration() {
     };
     const validationHandler = () => {
         const { password, confirmPassword, username, email } = values;
-        if (password !== confirmPassword) {
+        if(password.length <8){
+            toast.error("Password should contain atleast 8 characters", toastCss);
+        }
+        else if (password !== confirmPassword) {
             toast.error("Passwords does not match!", toastCss);
             return false;
         }
@@ -51,7 +54,7 @@ function Registration() {
             toast.error("Username should contain 5 characters atleast", toastCss);
             return false;
         }
-        if (email.length === "") {
+        else if (email.length === 0) {
             toast.error("Email is required", toastCss);
             return false;
         }
@@ -65,12 +68,12 @@ function Registration() {
                     <div className="heading">
                         <h1>Smart Room</h1>
                     </div>
-                    <input type="text" name="username" placeholder='Username' onChange={(e) => { changeHandler(e) }} required />
-                    <input type="email" name="email" placeholder='Email' onChange={(e) => { changeHandler(e) }} required />
-                    <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} minLength="8" required />
-                    <input type="password" name='confirmPassword' placeholder='Confirm Password' onChange={(e) => { changeHandler(e) }} required />
+                    <input type="text" name="username" placeholder='Username' onChange={(e) => { changeHandler(e) }} />
+                    <input type="email" name="email" placeholder='Email' onChange={(e) => { changeHandler(e) }}  />
+                    <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} minLength="8" />
+                    <input type="password" name='confirmPassword' placeholder='Confirm Password' onChange={(e) => { changeHandler(e) }} />
                     <button type='submit'>Create Account</button>
-                    <span>Already have an account? <Link to="/login">Login</Link> </span>
+                    <span>Already have an account? <Link to="/">Login</Link> </span>
                 </form>
             </FormContainer>
         </>
