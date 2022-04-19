@@ -40,7 +40,23 @@ module.exports.login = async (req, res, next)=>{
             res.json({ msg: "Incorrect Password!! Please Re-check the password", status: false });
         }
         delete isValidUser.password;
-        res.json({ status: true, isValidUser });
+        res.json({ status: true, user: isValidUser, profileSet: isValidUser.isProfilePicSet });
+    }
+    catch(excpetion){
+        next(excpetion)
+    }
+}
+
+module.exports.profile = async (req, res, next)=>{
+    try{
+        console.log("In controller", req.body, req.params)
+        const id = req.params.id;
+        const image = req.body.image;
+        const data = await User.findByIdAndUpdate(id,{
+            isProfilePicSet: true,
+            ProfilePic: image
+        });
+        res.json({ profileSetStatus: data.isProfilePicSet, image: data.ProfilePic });
     }
     catch(excpetion){
         next(excpetion)

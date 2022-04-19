@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import styles from 'styled-components'
 import { Link, useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import axios from 'axios' // axios is one of the most famous library of react js for sending Http request and get response from the rest points oor the apis
 import { registrationRoute } from '../utils/APIRoute'
+import styled from 'styled-components'
 
 function Registration() {
     const navigate = useNavigate();
@@ -34,7 +34,7 @@ function Registration() {
             }
             if (data.status === true) {
                 localStorage.setItem('chat-user', JSON.stringify(data.user));
-                navigate("/");
+                navigate("/setProfile");
             }
         }
     };
@@ -43,7 +43,7 @@ function Registration() {
     };
     const validationHandler = () => {
         const { password, confirmPassword, username, email } = values;
-        if(password.length <8){
+        if (password.length < 8) {
             toast.error("Password should contain atleast 8 characters", toastCss);
         }
         else if (password !== confirmPassword) {
@@ -69,7 +69,7 @@ function Registration() {
                         <h1>Smart Room</h1>
                     </div>
                     <input type="text" name="username" placeholder='Username' onChange={(e) => { changeHandler(e) }} />
-                    <input type="email" name="email" placeholder='Email' onChange={(e) => { changeHandler(e) }}  />
+                    <input type="email" name="email" placeholder='Email' onChange={(e) => { changeHandler(e) }} />
                     <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} minLength="8" />
                     <input type="password" name='confirmPassword' placeholder='Confirm Password' onChange={(e) => { changeHandler(e) }} />
                     <button type='submit'>Create Account</button>
@@ -79,91 +79,92 @@ function Registration() {
         </>
     )
 }
-
-const FormContainer = styles.div`
-    height: 100vh;
-    width: 100%;
+const FormContainer = styled.div`
+height: 100vh;
+width: 100%;
+display: flex;
+flex-direction: column;
+gap: 1rem;
+justify-content: center;
+align-items: center;
+background-color: #131325;
+.heading{
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 1rem;
     justify-content: center;
-    align-items: center;
-    background-color: #131325;
-    .heading{
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        justify-content: center;
-        h1{
-            color: white;
-            text-transform: uppercase;
-        }
+    h1{
+        color: white;
+        text-transform: uppercase;
     }
-    
-    form{
-        display: flex;
-        gap: 2rem;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        background-color: black;
-        padding: 3rem 7rem;
-        border-radius: 3rem;
-        input{
-            background: transparent;
-            outline: none;
-            width: 110%;
+}
+
+form{
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: black;
+    padding: 3rem 7rem;
+    border-radius: 3rem;
+    input{
+        background: transparent;
+        outline: none;
+        width: 110%;
+        border: 1px solid grey;
+        border-bottom: 2px solid white;
+        padding: 13px;
+        border-radius: 5px;
+        color: white;
+        font-size: 20px;
+        transition: 0.4s ease-in-out;
+        &:focus{
+            border: 1px solid blue;
+            border-bottom: 2px solid blue;
+        }
+        &.visited{ 
+            color: black;
             border: 1px solid grey;
             border-bottom: 2px solid white;
-            padding: 13px;
-            border-radius: 5px;
-            color: white;
-            font-size: 20px;
-            transition: 0.4s ease-in-out;
-            &:focus{
-                border: 1px solid blue;
-                border-bottom: 2px solid blue;
-            }
-            &.visited{ 
-                color: black;
-                border: 1px solid grey;
-                border-bottom: 2px solid white;
-                background: white;
-            }
+            background: white;
         }
-        button{
-            background-color:white;
-            color: black;
-            padding: 10px;
-            width: 120%;
-            justify-content:center;
-            align-items:center;
-            border-radius: 5px;
-            font-size: 20px;
-            border: 2px solid white;
-            outline: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.4s ease-in-out;
+    }
+    button{
+        background-color:white;
+        color: black;
+        padding: 10px;
+        width: 120%;
+        justify-content:center;
+        align-items:center;
+        border-radius: 5px;
+        font-size: 20px;
+        border: 2px solid white;
+        outline: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.4s ease-in-out;
+        &:hover{
+            color: white;
+            background-color: black;
+        }
+    }
+    span{
+        color: white;
+        width: 110%;
+        font-size: 16px;
+        a{
+            color: grey;
+            font-weight:bold;
+            text-decoration: none;
             &:hover{
                 color: white;
-                background-color: black;
-            }
-        }
-        span{
-            color: white;
-            width: 110%;
-            font-size: 16px;
-            a{
-                color: grey;
-                font-weight:bold;
-                text-decoration: none;
-                &:hover{
-                    color: white;
-                    text-decoration: underline;
-                }
+                text-decoration: underline;
             }
         }
     }
+}
+
 `;
+
 export default Registration

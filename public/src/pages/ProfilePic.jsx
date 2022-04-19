@@ -9,9 +9,16 @@ import { useNavigate } from 'react-router-dom';
 import { Buffer } from 'buffer';
 
 function ProfilePic() {
-
-    const api = "https://api.multiavatar.com/456789456";
     const navigate = useNavigate();
+    useEffect(() => {
+        async function fetchData() {
+            if(!localStorage.getItem("chat-user")){
+                navigate("/login");
+            }
+        };
+        fetchData();
+    }, []);
+    const api = "https://api.multiavatar.com/456789456";
     const [profiles, setProfiles] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selected, setSelected] = useState(undefined);
@@ -21,26 +28,39 @@ function ProfilePic() {
         autoClose: 5000,
         pauseOnHover: true,
     };
-    const setProfilePic = async ()=>{
-        if(selected === undefined){
-            toast.error("Please Select an Profile Picture", toastCss)
-        } else{
+    const setProfilePic = async () => {
+        if (selected === undefined) {
+            toast.error("Please Select an Avatar",toastCss);
+        }
+        else{
+            console.log(localStorage.getItem('chat-user'));
             const user = await JSON.parse(localStorage.getItem('chat-user'));
-            const { data }= await axios.post(`${profileRoute}/${user._id}`,{
+            console.log(user, user._id);
+            const {data} = await axios.post(`${profileRoute}/${user._id}`,{
                 image: profiles[selected]
             });
+            console.log(data);
+            if(data.profileSetStatus){
+                user.isProfilePicSet = true;
+                user.ProfilePic = data.image;
+                localStorage.setItem("chat-user", JSON.stringify(user));
+                navigate("/chats");
+            }
+            else{
+                toast.error("Error setting profile Picture please try again!!", toastCss);
+            }
         }
     };
-    useEffect(()=>{
-        async function fetchData(){
-            const data=[];
-        for (let i=0; i<5; i++){
-            const image = await axios.get(`${api}/${Math.round(Math.random() * 1000)}`);
-            const buffer = new Buffer(image.data);
-            data.push(buffer.toString("base64"));
-        }
-        setProfiles(data);
-        setIsLoading(false);
+    useEffect(() => {
+        async function fetchData() {
+            const data = [];
+            for (let i = 0; i < 5; i++) {
+                const image = await axios.get(`${api}/${Math.round(Math.random() * 1000)}`);
+                const buffer = new Buffer(image.data);
+                data.push(buffer.toString("base64"));
+            }
+            setProfiles(data);
+            setIsLoading(false);
         }
         fetchData();
     }, []);
@@ -48,33 +68,34 @@ function ProfilePic() {
 
     return (
         <>
-        {
-            isLoading? <Container>
-                <img src={loading} alt="loading" className='loader' />
-            </Container>:
-            <Container>
-                <div className="heading">
-                    <h1>Pick a Profile Pic that suits you</h1>
-                </div>
-                <div className="profiles">
-                    {
-                        profiles.map((profile, index)=>{
-                            return(
-                                <div key={index} className={`profile ${selected === index ? "selected" :"" }`}>
-                                    <img src={`data: image/svg+xml;base64,${profile}`} alt="profile" 
-                                    onClick={()=>{setSelected(index)}}
-                                    />
-                                </div>
-                            );
-                        })
-                    }
-                </div>
-                <button type='submit' onClick={()=>{setProfilePic()}} >Set Profile</button>
-            </Container>
-        }
+            {
+                isLoading ? 
+                <Container>
+                    <img src={loading} alt="loading" className='loader' />
+                </Container> :
+                    <Container>
+                        <div className="heading">
+                            <h1>Choose a Profile Picture that suits you</h1>
+                        </div>
+                        <div className="profiles">
+                            {
+                                profiles.map((profile, index) => {
+                                    return (
+                                        <div key={index} className={`profile ${selected === index ? "selected" : ""}`}>
+                                            <img src={`data: image/svg+xml;base64,${profile}`} alt="profile"
+                                                onClick={() => { setSelected(index) }}
+                                            />
+                                        </div>
+                                    );
+                                })
+                            }
+                        </div>
+                        <button type='submit' onClick={() => { setProfilePic() }} >Set Profile</button>
+                    </Container>
+            }
             <ToastContainer />
-            
-        </>   
+
+        </>
     )
 }
 
@@ -105,7 +126,7 @@ const Container = styled.div`
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 5rem;
+            border-radius: 50%;
             transition: 0.4s ease-in-out;
             img{
                 height: 6rem;

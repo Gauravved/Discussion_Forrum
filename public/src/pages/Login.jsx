@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import styles from 'styled-components'
+import styled from 'styled-components'
 import { Link, useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -32,7 +32,12 @@ function Login() {
             }
             if (data.status === true) {
                 localStorage.setItem('chat-user', JSON.stringify(data.user));
-                navigate("/chats");
+                console.log(localStorage.getItem('chat-user'))
+                console.log(data.profileSet);
+                if(data.profileSet === true)
+                    navigate("/chats");
+                else
+                    navigate("/setProfile");
             }
         }
     };
@@ -69,7 +74,7 @@ function Login() {
     )
 }
 
-const FormContainer = styles.div`
+const FormContainer = styled.div`
     height: 100vh;
     width: 100%;
     display: flex;
