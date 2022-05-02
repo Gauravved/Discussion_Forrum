@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import loading from '../assets/loading2.gif';
+import loading from '../assets/loading3.gif';
 import { ToastContainer, toast } from 'react-toastify';
 import { profileRoute } from '../utils/APIRoute';
 import 'react-toastify/dist/ReactToastify.css';
@@ -111,6 +111,7 @@ const Container = styled.div`
     .loader{
         max-inline-size: 100%;
         background-color: transparent;
+        border-radius: 3rem;
     }
     .heading{
         h1{
