@@ -1,5 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt'); // used for encrypting data. We have used to encrypt password
+const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
 
 // what to do with the request comming from /register path is decided here
 module.exports.register = async (req, res, next) => {
@@ -60,5 +62,56 @@ module.exports.profile = async (req, res, next)=>{
     }
     catch(excpetion){
         next(excpetion)
+    }
+}
+
+module.exports.forgotPassword = async (req, res, next)=>{
+    try{
+        const secret = process.env.JWT_SECRET
+        const {email} = req.body;
+        const validEmail = await User.findOne({email});
+        if(!validEmail){
+            res.json({status: false, msg: "This Email is not registered"});
+        }
+        else{
+            const newSecret = secret + validEmail.password; //new secret generation so that one link can be used only once
+            //payload generation for token
+            const payload = {
+                email: validEmail.email,
+                id: validEmail.id
+            }
+            //token generation
+            const token = jwt.sign(payload, newSecret, { expiresIn: '15m'}); //expiresIn specified the time of expiration of that link
+            //Link generation from the Token
+            const link = `http://localhost:3000/resetPassword/${validEmail.id}/${token}`
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth:{
+                    user: 'smartroom112000@gmail.com',
+                    pass: 'Smartroom@123'
+                }
+            });
+            const mailOptions = {
+                from: 'smartroom@123',
+                to: `${validEmail.email}`,
+                subject: 'Reset Your Password',
+                text: ` Here is Your Password Reset Link: <a href="${link}>Click Here</a> <br>
+                        This Link is valid for 15 minutes. Note: Do not share the Link
+                `
+            }
+            transporter.sendMail(mailOptions, (error, info)=>{
+                if(error){
+                    console.log("Could not send Email"+error.msg);
+                }
+                else{
+                    console.log("Email sent");
+                }
+            })
+            console.log(link)
+            res.json({status: true, msg:"Email Send Successfully"});
+        }
+    }
+    catch(exception){
+        console.log(exception);
     }
 }

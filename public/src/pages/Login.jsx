@@ -34,7 +34,7 @@ function Login() {
                 localStorage.setItem('chat-user', JSON.stringify(data.user));
                 console.log(localStorage.getItem('chat-user'))
                 console.log(data.profileSet);
-                if(data.profileSet === true)
+                if (data.profileSet === true)
                     navigate("/chats");
                 else
                     navigate("/setProfile");
@@ -46,7 +46,7 @@ function Login() {
     };
     const validationHandler = () => {
         const { password, username } = values;
-        if (password === "" ) {
+        if (password === "") {
             toast.error("Password is required", toastCss);
             return false;
         }
@@ -66,6 +66,9 @@ function Login() {
                     </div>
                     <input type="text" name="username" placeholder='Username' onChange={(e) => { changeHandler(e) }} min="5" />
                     <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} minLength="8" />
+                    <span>
+                        <Link to="/forgetPassword">Forgot Password?</Link>
+                    </span>
                     <button type='submit'>Login</button>
                     <span>Don't have an account? <Link to="/register">Register Here</Link> </span>
                 </form>
@@ -140,7 +143,7 @@ const FormContainer = styled.div`
         }
         span{
             color: white;
-            width: 110%;
+            width: 115%;
             font-size: 16px;
             a{
                 color: grey;
@@ -153,5 +156,6 @@ const FormContainer = styled.div`
             }
         }
     }
+
 `;
 export default Login
