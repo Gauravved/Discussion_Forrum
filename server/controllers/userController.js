@@ -141,6 +141,7 @@ module.exports.resetPassword = async (req, res, next)=>{
             res.json({status: true, msg: "Password Reset Successful"})
         }
     }catch(exception){
+        res.json({status: false, msg: "Either the Link is used or Expired"})
         next(exception)
     }
 }
