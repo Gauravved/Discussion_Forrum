@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt'); // used for encrypting data. We have used to encrypt password
-const jwt = require('jsonwebtoken')
-const nodemailer = require('nodemailer')
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 // what to do with the request comming from /register path is decided here
 module.exports.register = async (req, res, next) => {
@@ -76,6 +76,7 @@ module.exports.forgotPassword = async (req, res, next)=>{
         else{
             const newSecret = secret + validEmail.password; //new secret generation so that one link can be used only once
             //payload generation for token
+            console.log(newSecret)
             const payload = {
                 email: validEmail.email,
                 id: validEmail.id
@@ -102,16 +103,44 @@ module.exports.forgotPassword = async (req, res, next)=>{
             transporter.sendMail(mailOptions, (error, info)=>{
                 if(error){
                     console.log("Could not send Email"+error.msg);
+                    res.json({status: false, msg:"Could Not send the email"});
                 }
                 else{
                     console.log("Email sent");
+                    res.json({status: true, msg:"Email Send Successfully"});
                 }
             })
             console.log(link)
-            res.json({status: true, msg:"Email Send Successfully"});
         }
     }
     catch(exception){
-        console.log(exception);
+        next(exception);
+    }
+}
+
+module.exports.resetPassword = async (req, res, next)=>{
+    try{
+        const { password } = req.body;
+        const {id,token} = req.params;
+        console.log(id);
+        console.log(password+" "+req.body)
+        const validUser = await User.findById(id);
+        if(!validUser){
+            res.json({status: false, msg: "User Not Found"});
+        }
+        else{
+            const secret = process.env.JWT_SECRET + validUser.password;
+            console.log(validUser.id+" "+validUser.password)
+            const payload = jwt.verify(token, secret);
+            console.log(password);
+            const encryptedPassword = await bcrypt.hash(password, 10);
+            const user = await User.findByIdAndUpdate(id,{
+                password: encryptedPassword
+            });
+            delete user.password;
+            res.json({status: true, msg: "Password Reset Successful"})
+        }
+    }catch(exception){
+        next(exception)
     }
 }

@@ -1,41 +1,55 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { forgetPassRoute, forgotPassRoute } from '../utils/APIRoute'
-import { Navigate, useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import axios from 'axios' // axios is one of the most famous library of react js for sending Http request and get response from the rest points oor the apis
+import {resetPassRoute} from '../utils/APIRoute'
 
-
-function ForgetPassword() {
-    const navigate = useNavigate();
+function ResetPassword() {
     const toastCss = {
-        position: "top-right",
-        theme: "dark",
-        autoClose: 5000,
-        pauseOnHover: true,
+    position: "top-right",
+    theme: "dark",
+    autoClose: 5000,
+    pauseOnHover: true,
+};
+    const {id,token} = useParams();
+    const [passswords, setPassswords] = useState({
+        password: "",
+        confirmPassword: ""
+    });
+    const changeHandler = (e)=>{
+        setPassswords({...passswords, [e.target.name]: e.target.value });
+        console.log(process.env.JWT_SECRET);
     };
-    const [email, setEmail] = useState('');
-    const changeHandler=(e)=>{
-        setEmail(e.target.value);
-    }
-    const submitHandler = async (event)=>{
-        event.preventDefault();
-        if(email === ''){
-            toast.error("Email is Required",toastCss);
+    const submitHandler = async (e)=>{
+        e.preventDefault();
+        const { password, confirmPassword } = passswords;
+        console.log(id, token);
+        if(password === ""){
+            toast.error("Password should not be empty",toastCss);
+        }
+        else if(password.length <8){
+            toast.error("Password must contain atleast 8 characters",toastCss);
+        }
+        else if(confirmPassword !== password){
+            toast.error("Passwords does not match",toastCss);
         }
         else{
-            const {data} = await axios.post(forgetPassRoute, { email });
-            if (data.status === false){
-                toast.error(data.msg,toastCss);
+            const { data } = await axios.post(`${resetPassRoute}/${id}/${token}`, {
+                password
+            });
+            if (!data.status) {
+                toast.error(data.msg, toastCss);
             }
             else{
-                toast.success(data.msg, toastCss);
+                toast.success(data.msg,toastCss);
             }
         }
-    };
-    return (
-        <>
+    }
+  return (
+    <>
             <ToastContainer />
             <FormContainer>
                 <form onSubmit={(event) => { submitHandler(event) }}>
@@ -43,19 +57,21 @@ function ForgetPassword() {
                         <h1>Smart Room</h1>
                     </div>
                     <span>
-                        <p>Enter the Registered Email ID</p>
+                        <p>Reset Password</p>
                     </span>
-                    <input type="email" name="email" placeholder='Email Address' onChange={(e) => { changeHandler(e) }} min="5" />
-                    <button type='submit'>Send Link</button>
+                    <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} />
+                    <input type="password" name="confirmPassword" placeholder='Confrirm Password' onChange={(e) => { changeHandler(e) }} />
+                    <button type='submit'>Reset</button>
                     <span>
-                        Note: <p>Link will be valid for 15 minutes only</p><br />
-                        Back to <Link to='/'>Login</Link>
+                        Note: <p>Link will be valid for 15 minutes only</p>
                     </span>
                 </form>
             </FormContainer>
         </>
-    )
+  )
 }
+
+
 const FormContainer = styled.div` height: 100vh;
 width: 100%;
 display: flex;
@@ -131,17 +147,7 @@ form{
             font-weight: normal;
             font-size: 16px;
         }
-            a{
-                color: grey;
-                font-weight:bold;
-                text-decoration: none;
-                &:hover{
-                    color: white;
-                    text-decoration: underline;
-                }
-            }
     }
 }
 `;
-
-export default ForgetPassword
+export default ResetPassword
