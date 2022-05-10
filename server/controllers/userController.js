@@ -1,4 +1,4 @@
-const User = require('../models/userModel');
+const User = require('../models/userModel').userModel;
 const bcrypt = require('bcrypt'); // used for encrypting data. We have used to encrypt password
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -143,5 +143,17 @@ module.exports.resetPassword = async (req, res, next)=>{
     }catch(exception){
         res.json({status: false, msg: "Either the Link is used or Expired"})
         next(exception)
+    }
+}
+
+module.exports.getRooms = async (req,res,next)=>{
+    try {
+        const { id } = req.params;
+        const rooms = await User.findById(id).select(["Rooms"]);
+        const allRooms = rooms.Rooms;
+        console.log(allRooms); 
+        return res.json({data: allRooms });
+    } catch (error) {
+        next(error)
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import Registration from './pages/Registration.jsx'
 import Login from './pages/Login.jsx'
-import Chats from './pages/chat.jsx'
+import Chats from './pages/Chat.jsx'
 import {BrowserRouter as Routers, Route, Routes} from 'react-router-dom'
 import ProfilePic from './pages/ProfilePic.jsx'
 import ForgetPassword from './pages/ForgetPassword'

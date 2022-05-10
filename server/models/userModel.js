@@ -25,7 +25,11 @@ const userSchema = new mongoose.Schema({
     ProfilePic:{
         type: String,
         default: ""
+    },
+    Rooms:{
+        type: Array,
+        default: []
     }
 });
 
-module.exports = mongoose.model("Users", userSchema);
+module.exports.userModel = mongoose.model("Users", userSchema);
