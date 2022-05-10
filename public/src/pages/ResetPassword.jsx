@@ -6,8 +6,34 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import axios from 'axios' // axios is one of the most famous library of react js for sending Http request and get response from the rest points oor the apis
 import {resetPassRoute} from '../utils/APIRoute'
+import {Icon} from 'react-icons-kit';
+import {eye,eyeOff} from 'react-icons-kit/feather'
 
 function ResetPassword() {
+    const [type, setType] = useState('password');
+    const [icon, setIcon] = useState(eyeOff);
+    const [type2, setType2] = useState('password');
+    const [icon2, setIcon2] = useState(eyeOff);
+    const toggleHandler = ()=>{
+        if(type === 'password'){
+            setIcon(eye);
+            setType('text');
+        }
+        else{
+            setIcon(eyeOff);
+            setType('password');
+        }
+    }
+    const toggleHandler2 = ()=>{
+        if(type2 === 'password'){
+            setIcon2(eye);
+            setType2('text');
+        }
+        else{
+            setIcon2(eyeOff);
+            setType2('password');
+        }
+    }
     const toastCss = {
     position: "top-right",
     theme: "dark",
@@ -59,8 +85,14 @@ function ResetPassword() {
                     <span>
                         <p>Reset Password</p>
                     </span>
-                    <input type="password" name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} />
-                    <input type="password" name="confirmPassword" placeholder='Confrirm Password' onChange={(e) => { changeHandler(e) }} />
+                    <div className="passwordFields"> 
+                        <input type={type} name="password" placeholder='Password' onChange={(e) => { changeHandler(e) }} minLength="8" />
+                        <span className='icons'><Icon icon={icon} size={20} onClick={()=>{toggleHandler()}} /></span>
+                    </div>
+                    <div className="passwordFields"> 
+                        <input type={type2} name="confirmPassword" placeholder='Confirm Password' onChange={(e) => { changeHandler(e) }} minLength="8" />
+                        <span className='icons'><Icon icon={icon2} size={20} onClick={()=>{toggleHandler2()}} /></span>
+                    </div>
                     <button type='submit'>Reset</button>
                     <span>
                         Note: <p>Link will be valid for 15 minutes only</p>
@@ -116,6 +148,33 @@ form{
             border-bottom: 2px solid blue;
         }
     }
+    .passwordFields{
+            display: grid;
+            grid-template-columns: 85% 15%;
+            justify-content: space-between;
+            align-items: center;
+            width: 118%;
+            input{
+                background: transparent;
+                outline: none;
+                border: 1px solid grey;
+                border-bottom: 2px solid white;
+                border-radius: 5px;
+                color: white;
+                font-size: 20px;
+                transition: 0.4s ease-in-out;
+                &:focus{
+                   border: 1px solid blue;
+                   border-bottom: 2px solid blue;
+                }
+            }
+            span{
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                padding: 30%;
+            }
+        }
     button{
         background-color:white;
         color: black;
