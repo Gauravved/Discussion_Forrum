@@ -19,7 +19,7 @@ export default function Rooms({ rooms, currentUser }) {
                 currentUserImage && currentUsername && (
                     <Container>
                         <div className="heading" >
-                            <h3>Smart Room</h3>
+                            <h3>Rooms</h3>
                         </div>
                         {
                             rooms.length === 0 ?
@@ -47,14 +47,6 @@ export default function Rooms({ rooms, currentUser }) {
                                     </div>
                                 </>
                         }
-                        <div className="cuurentUser">
-                            <div className="profile">
-                                <img src={`data:image/svg+xml;base64,${currentUserImage}`} alt="profile" />
-                            </div>
-                            <div className="username">
-                                <h3>{currentUsername}</h3>
-                            </div>
-                        </div>
                     </Container>
                 )
             }
@@ -66,7 +58,7 @@ const Container = styled.div`
     display: grid;
     overflow: hidden;
     background-color: #080820;
-    grid-template-rows: 10% 75% 15%;
+    grid-template-rows: 10% 90%;
     .heading{
         display: flex;
         justify-content: center;
@@ -113,13 +105,16 @@ const Container = styled.div`
             }
         }
         .noRoom{
-            background-color: #ffffff39;
-            width: 95%;
+            gap: 1rem;
+            color: white;
             display: flex;
             align-items: center;
+            background-color: #ffffff6d;
+            width: 90%;
             padding-left: 7px;
-            height: 3.5rem;
+            min-height: 3.5rem;
             border-radius: 5px;
+            transition: 0.4s ease-in-out;
             vertical-align: center;
         }
     }

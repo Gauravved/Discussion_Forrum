@@ -4,6 +4,7 @@ import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import { allRoomsRoute } from '../utils/APIRoute';
 import Rooms from '../components/Rooms'
+import Header from '../components/Header'
 
 function Chat(){
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ function Chat(){
   }, [currentUser]);
   return (
     <>
+    <Header currentUser={currentUser} ></Header>
       <Container>
         <div className="container">
           <Rooms rooms={rooms} currentUser={currentUser} />
@@ -50,13 +52,14 @@ const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 1rem;
   background-color: #131325;
   .container{
-    height: 85vh;
-    width: 85%;
+    margin-top: 2rem;
+    height: 80vh;
+    width: 90%;
     background-color: #00000076;
     display: grid;
     grid-template-columns: 25% 75%;
