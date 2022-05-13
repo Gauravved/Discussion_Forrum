@@ -109,7 +109,7 @@ const Container = styled.div`
             color: white;
             display: flex;
             align-items: center;
-            background-color: #ffffff6d;
+            background-color: #ffffff39;
             width: 90%;
             padding-left: 7px;
             min-height: 3.5rem;

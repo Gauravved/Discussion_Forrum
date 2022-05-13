@@ -89,7 +89,7 @@ module.exports.forgotPassword = async (req, res, next)=>{
                 service: 'gmail',
                 auth:{
                     user: 'smartroom112000@gmail.com',
-                    pass: 'Smartroom@123'
+                    pass: 'Smartroom@1234'
                 }
             });
             const mailOptions = {

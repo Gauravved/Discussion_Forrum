@@ -41,7 +41,7 @@ grid-template-columns: 15% 85%;
 width: auto;
 padding: 0.8rem;
 align-items: center;
-background-color: #131350;
+background-color: #262650;
 margin: none;
 h1{
     color: white;
@@ -59,7 +59,7 @@ h1{
         justify-content: end;
         button{
             background-color:white;
-            color: #131350;
+            color: #262650;
             padding: 10px;
             width: auto;
             justify-content:center;
@@ -83,8 +83,9 @@ h1{
         justify-content: center;
         .profile{
             img{
-                height: 4rem;
+                height: 3rem;
                 max-inline-size: 100%;
+                padding: 5px;
             }
         }
         .username{
