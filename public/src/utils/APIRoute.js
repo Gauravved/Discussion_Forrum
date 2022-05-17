@@ -5,3 +5,6 @@ export const profileRoute = `${host}/api/auth/setProfile`;
 export const forgetPassRoute = `${host}/api/auth/forgotPassword` 
 export const resetPassRoute = `${host}/api/auth/resetPassword`
 export const allRoomsRoute = `${host}/api/auth/allRooms` 
+export const createRoomRoute = `${host}/api/auth/createRoom`
+export const deleteRoomRoute = `${host}/api/auth/deleteRoom`
+export const joinRoomRoute = `${host}/api/auth/joinRoom`

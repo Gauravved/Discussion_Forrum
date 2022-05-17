@@ -18,7 +18,7 @@ function ProfilePic() {
         };
         fetchData();
     }, []);
-    const api = "https://api.multiavatar.com/456789456";
+    const api = "https://api.multiavatar.com/456789";
     const [profiles, setProfiles] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selected, setSelected] = useState(undefined);

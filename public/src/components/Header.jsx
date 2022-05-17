@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-export default function Header({ currentUser }) {
+export default function Header({ currentUser, displaySettings, displaySettings2 }) {
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
     useEffect(() => {
@@ -9,17 +9,19 @@ export default function Header({ currentUser }) {
             setCurrentUsername(currentUser.username);
             setCurrentUserImage(currentUser.ProfilePic)
         }
-    }, [currentUser])
+    }, [currentUser]);
     return (
         <>
             <HeaderContainer>
                 <h1>Smart Room</h1>
                 <div className='options'>
                     <div className="roomButtons">
-                        <button type="submit">Create</button>
+                        <button type="submit" onClick={() => {displaySettings()}
+                        }>Create</button>
+
                     </div>
                     <div className="roomButtons">
-                        <button type='submit'>Join</button>
+                        <button type='submit' onClick={()=>{displaySettings2()}}>Join</button>
                     </div>
                     <div className="currentUser">
                         <div className="profile">

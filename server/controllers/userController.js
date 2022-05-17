@@ -1,7 +1,10 @@
 const User = require('../models/userModel').userModel;
+const Room = require('../models/roomModel').roomSchema
 const bcrypt = require('bcrypt'); // used for encrypting data. We have used to encrypt password
 const jwt = require('jsonwebtoken');
+const { default: mongoose } = require('mongoose');
 const nodemailer = require('nodemailer');
+const {v4: uuidv4} = require('uuid');
 
 // what to do with the request comming from /register path is decided here
 module.exports.register = async (req, res, next) => {
@@ -54,11 +57,14 @@ module.exports.profile = async (req, res, next)=>{
         console.log("In controller", req.body, req.params)
         const id = req.params.id;
         const image = req.body.image;
-        const data = await User.findByIdAndUpdate(id,{
+        console.log();
+        const data = await User.findByIdAndUpdate(id, {
             isProfilePicSet: true,
             ProfilePic: image
         });
-        res.json({ profileSetStatus: data.isProfilePicSet, image: data.ProfilePic });
+        const after = await User.findById(id).select(["isProfilePicSet", "ProfilePic"]);
+        console.log(after.isProfilePicSet + data.ProfilePic)
+        res.json({ profileSetStatus: after.isProfilePicSet, image: after.ProfilePic });
     }
     catch(excpetion){
         next(excpetion)
@@ -151,9 +157,106 @@ module.exports.getRooms = async (req,res,next)=>{
         const { id } = req.params;
         const rooms = await User.findById(id).select(["Rooms"]);
         const allRooms = rooms.Rooms;
-        console.log(allRooms); 
-        return res.json({data: allRooms });
+        console.log(allRooms);
+        const allRoomsName = []
+        for(var i=0; i<allRooms.length; i++){
+            const roomDb = await Room.findById(allRooms[i]);
+            const roomname = roomDb.roomname;
+            allRoomsName.push(roomname);
+        }
+        return res.json({data: allRoomsName, roomIds: allRooms });
     } catch (error) {
+        next(error)
+    }
+}
+
+module.exports.createRoom = async (req, res, next)=>{
+    try{
+        const { id } = req.params;
+        const { roomName } = req.body;
+        const username = await User.findById(id).select(["username"]);
+        const userRooms = await User.findById(id).select(["Rooms"]);
+        const allRooms = userRooms.Rooms;
+        const roomId = uuidv4();
+        const getRoomId = await Room.find({roomname: roomName}).select(['_id']);
+        let b = true
+        console.log(getRoomId)
+        for(let i = 0;i< getRoomId.length;i++){
+            if(allRooms.includes(getRoomId[i]._id)){
+                b=false
+            }
+        }
+        if(!b){
+            res.json({status: false, msg: `${username.username} already have this Room name`});
+        }
+        else{
+            console.log(allRooms+" Done ");
+            const room  = await Room.create({
+                roomname: roomName,
+                activityStatus:  true,
+                allowedUsers: [username.username]  
+            });
+            allRooms.push(room._id);
+            const user = await User.findByIdAndUpdate(id, {
+                Rooms: allRooms
+            });
+            res.json({status: true, msg: "Room has been created"})
+        }
+    }catch(exception){
+        next(exception)
+    }
+}
+
+module.exports.deleteRoom = async(req,res,next)=>{
+    try {
+        const { id } = req.params;
+        const { roomName, roomId } = req.body;
+        console.log(roomName+ " "+roomId);
+        const user = await User.findById(id).select(['username', 'Rooms']);
+        const rooms = await Room.findById(roomId).select(['allowedUsers']);
+        const allUser = rooms.allowedUsers;
+        const allRooms = user.Rooms;
+        console.log("Done");
+        allRooms.remove(roomId);
+        console.log(allUser);
+        allUser.remove(user.username);
+        console.log(allUser.length +" "+allUser);
+        if(allUser.length === 0){
+            const deleteRoom = await Room.deleteOne({_id: roomId});
+        }
+        else{
+            const updateRoom = await Room.findByIdAndUpdate(roomId,{allowedUsers: allUser});
+        }
+        const updatedUser = await User.findByIdAndUpdate(id, {Rooms: allRooms});
+        res.json({status: true, msg: "Room Deleted"});
+    } catch (error) {
+        next(error)
+    }
+}
+
+module.exports.joinRoom = async (req,res,next)=>{
+    try{
+        const {id} = req.params;
+        const { roomId } = req.body;
+        const data = await User.findById(id).select(["username","Rooms"]);
+        const allRooms = data.Rooms;
+        const rooms = await Room.findById(roomId);
+        console.log(allRooms);
+        if(allRooms.includes(roomId)){
+            res.json({status: false, msg: `${data.username} is already member of this room`});;
+        }
+        else if(rooms.length === 0){
+            res.json({status: false, msg: "This Room does not exist \n Please re-check id"})
+        }
+        else{
+            const allUser = rooms.allowedUsers;
+            allUser.push(data.username);
+            const updateRoom = await Room.findByIdAndUpdate(roomId, {allowedUsers: allUser});
+            allRooms.push(updateRoom._id);
+            const updatedUser = await User.findByIdAndUpdate(id,{Rooms: allRooms});
+            res.json({status: true, msg: "Room joined"})
+        }
+    }catch(error){
         next(error)
     }
 }

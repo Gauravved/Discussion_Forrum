@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import Icon from 'react-icons-kit'
+import {trash} from 'react-icons-kit/feather'
 
-export default function Rooms({ rooms, currentUser }) {
+export default function Rooms({ rooms, currentUser, displaySettings3 }) {
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
     const [selectedRoom, setSelectedRoom] = useState(undefined);
@@ -39,6 +41,7 @@ export default function Rooms({ rooms, currentUser }) {
                                                     <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index}>
                                                         <div className="roomName">
                                                             <h3>{room}</h3>
+                                                            <span><Icon icon={trash} size={20} style={{color: "red", cursor:"pointer"}} onClick={()=>{displaySettings3(room, index)}} ></Icon></span>
                                                         </div>
                                                     </div>
                                                 )
@@ -63,14 +66,14 @@ const Container = styled.div`
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 1 rem;
+        gap: 1rem;
         h3{
             color: white;
             text-transform: uppercase;
         }
     }
     .rooms{
-        display: flex;
+        display: inline-flex;
         flex-direction: column;
         align-items: center;
         overflow: auto;
@@ -99,6 +102,17 @@ const Container = styled.div`
             vertical-align: center;
             .roomName{
                 color: white;
+                display: flex;
+                width: 100%;
+                align-items: center;
+                h3{
+                    display: inline;
+                }
+                span{
+                    display: inline;
+                    margin-right: 10px;
+                    margin-left: auto;
+                }
             }
             .selected{
                 background-color: #131335;
