@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import Icon from 'react-icons-kit';
+import { power } from 'react-icons-kit/feather';
 
 export default function Header({ currentUser, displaySettings, displaySettings2 }) {
+    const navigate = useNavigate();
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
     useEffect(() => {
@@ -10,6 +14,10 @@ export default function Header({ currentUser, displaySettings, displaySettings2 
             setCurrentUserImage(currentUser.ProfilePic)
         }
     }, [currentUser]);
+    const handleClick = async ()=>{
+        localStorage.clear();
+        navigate('/')
+    }
     return (
         <>
             <HeaderContainer>
@@ -30,6 +38,9 @@ export default function Header({ currentUser, displaySettings, displaySettings2 
                         <div className="username">
                             <h3>{currentUsername}</h3>
                         </div>
+                        <span className='logoutContainer' onClick={()=>{handleClick()}}>
+                            <Icon icon={power} size={25} className='logout' ></Icon>
+                        </span>
                     </div>
                 </div>
             </HeaderContainer>
@@ -92,6 +103,18 @@ h1{
         }
         .username{
             h3{
+                color: white;
+                margin-right: 5px;
+            }
+        }
+        .logoutContainer{
+            align-items: center;
+            cursor: pointer;
+            justify-content: center;
+            padding: 10px;
+            background-color: #901090;
+            border-radius: 50%;
+            .logout{
                 color: white;
             }
         }

@@ -9,6 +9,8 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Icon from 'react-icons-kit';
 import { xCircle } from 'react-icons-kit/feather';
+import Welcome from '../components/Welcome';
+import ChatContainer from '../components/ChatContainer'
 
 function Chat() {
   const toastCss = {
@@ -16,7 +18,7 @@ function Chat() {
     theme: "dark",
     autoClose: 5000,
     pauseOnHover: true,
-};
+  };
   const [createRoom, setCreateRoom] = useState("");
   const [joinRoom, setJoinRoom] = useState("");
   const [displayCreate, setDisplayCreate] = useState('none');
@@ -26,6 +28,12 @@ function Chat() {
   const [displayDelete, setDisplayDelete] = useState('none');
   const [roomname, setRoomname] = useState(undefined);
   const [roomId, setRoomId] = useState(undefined);
+  const [currentRoom, setCurrentRoom] = useState(undefined);
+  const [currentRoomId, setCurrentRoomId] = useState(undefined);
+  const handleRoomChange = (room, index) => {
+    setCurrentRoom(room);
+    setCurrentRoomId(roomIds[index])
+  }
   const changeHandler = (e) => {
     setCreateRoom(e.target.value);
   }
@@ -45,7 +53,7 @@ function Chat() {
       else {
         setCurrentUser(await JSON.parse(localStorage.getItem("chat-user")));
       }
-      
+
     }
   }, []);
   const displaySettings = () => {
@@ -58,7 +66,7 @@ function Chat() {
       setTransformCreate(0)
     }
   }
-  const displaySettings2 = ()=>{
+  const displaySettings2 = () => {
     if (displayJoin === 'none') {
       setDisplayJoin('flex')
       setTransformCreate(1)
@@ -83,22 +91,22 @@ function Chat() {
       }
     }
   }, [currentUser]);
-  const sleep = (milliseconds)=>{
+  const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
   }
   const onCreate = async (e) => {
     e.preventDefault()
-    if(createRoom === ""){
-        toast.warning("Please enter Room name",toastCss)
+    if (createRoom === "") {
+      toast.warning("Please enter Room name", toastCss)
     }
-    else{
-      const  { data } = await axios.post(`${createRoomRoute}/${currentUser._id}`, {
+    else {
+      const { data } = await axios.post(`${createRoomRoute}/${currentUser._id}`, {
         roomName: createRoom
       });
-      if(!data.status){
+      if (!data.status) {
         toast.error(data.msg, toastCss)
       }
-      else{
+      else {
         toast.success(data.msg, toastCss);
         displaySettings();
         await sleep(5000)
@@ -106,7 +114,7 @@ function Chat() {
       }
     }
   }
-  const displaySettings3 = (room, index)=>{
+  const displaySettings3 = (room, index) => {
     setRoomname(room)
     setRoomId(roomIds[index])
     if (displayDelete === 'none') {
@@ -116,13 +124,13 @@ function Chat() {
       setDisplayDelete('none')
     }
   }
-  const onDelete = async (e)=>{
+  const onDelete = async (e) => {
     e.preventDefault();
-    const {data} = await axios.post(`${deleteRoomRoute}/${currentUser._id}`,{roomName: roomname, roomId: roomId});
-    if(!data.status){
+    const { data } = await axios.post(`${deleteRoomRoute}/${currentUser._id}`, { roomName: roomname, roomId: roomId });
+    if (!data.status) {
       toast.error(data.msg, toastCss)
     }
-    else{
+    else {
       toast.success(data.msg, toastCss);
       displaySettings3();
       await sleep(5000)
@@ -131,11 +139,11 @@ function Chat() {
   }
   const onJoin = async (e) => {
     e.preventDefault();
-    const  {data} = await axios.post(`${joinRoomRoute}/${currentUser._id}`, {roomId: joinRoom});
-    if(!data.status){
+    const { data } = await axios.post(`${joinRoomRoute}/${currentUser._id}`, { roomId: joinRoom });
+    if (!data.status) {
       toast.error(data.msg, toastCss);
     }
-    else{
+    else {
       toast.success(data.msg, toastCss);
       displaySettings2();
       await sleep(5000)
@@ -144,14 +152,14 @@ function Chat() {
   }
   return (
     <>
-    <ToastContainer />
+      <ToastContainer />
       <FormContainer>
         <div className='displayCreate' style={{ display: `${displayCreate}`, transform: `${transformCreate}` }}>
-          <div className="dialog-box"> 
-          <span><Icon icon={xCircle} size={25} onClick={() => {
-            if (displayCreate === 'none') { setDisplayCreate('flex') }
-            else { setDisplayCreate('none') }
-          }} style={{ color: "white", right: "32%",top: "18%", position: "fixed", cursor: "pointer"}} ></Icon></span>
+          <div className="dialog-box">
+            <span><Icon icon={xCircle} size={25} onClick={() => {
+              if (displayCreate === 'none') { setDisplayCreate('flex') }
+              else { setDisplayCreate('none') }
+            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
             <h2>Create New Room</h2>
             <form onSubmit={(e) => { onCreate(e) }}>
               <input type="text" placeholder='Enter Name For Room' name='createRoom' value={createRoom} onChange={(event) => { changeHandler(event) }} />
@@ -160,11 +168,11 @@ function Chat() {
           </div>
         </div>
         <div className='displayCreate' style={{ display: `${displayJoin}`, transform: `${transformJoin}` }}>
-          <div className="dialog-box"> 
-          <span><Icon icon={xCircle} size={25} onClick={() => {
-            if (displayJoin === 'none') { setDisplayJoin('flex') }
-            else { setDisplayJoin('none') }
-          }} style={{ color: "white", right: "32%",top: "18%", position: "fixed", cursor: "pointer"}} ></Icon></span>
+          <div className="dialog-box">
+            <span><Icon icon={xCircle} size={25} onClick={() => {
+              if (displayJoin === 'none') { setDisplayJoin('flex') }
+              else { setDisplayJoin('none') }
+            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
             <h2>Join Room</h2>
             <form onSubmit={(e) => { onJoin(e) }}>
               <input type="text" placeholder='Enter Room Id' name='joinRoom' value={joinRoom} onChange={(event) => { changeHandler2(event) }} />
@@ -173,27 +181,38 @@ function Chat() {
           </div>
         </div>
         <div className='displayCreate' style={{ display: `${displayDelete}` }}>
-          <div className="dialog-box"> 
-          <span><Icon icon={xCircle} size={25} onClick={() => {
-            if (displayDelete === 'none') { setDisplayDelete('flex') }
-            else { setDisplayDelete('none') }
-          }} style={{ color: "white", right: "32%",top: "18%", position: "fixed", cursor: "pointer"}} ></Icon></span>
+          <div className="dialog-box">
+            <span><Icon icon={xCircle} size={25} onClick={() => {
+              if (displayDelete === 'none') { setDisplayDelete('flex') }
+              else { setDisplayDelete('none') }
+            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
             <h2>Do you Want to Delete This room</h2>
-            <form onSubmit={(e) => { onDelete(e) }} className='deleteForm'> 
-              <button type='submit' style={{backgroundColor: "Red", border: "2px solid red"}}>Yes</button>
-              <button type='button' onClick={()=>{
-            if (displayDelete === 'none') { setDisplayDelete('flex') }
-            else { setDisplayDelete('none') }
-            }}>No</button>
+            <form onSubmit={(e) => { onDelete(e) }} className='deleteForm'>
+              <button type='submit' style={{ backgroundColor: "Red", border: "2px solid red" }}>Yes</button>
+              <button type='button' onClick={() => {
+                if (displayDelete === 'none') { setDisplayDelete('flex') }
+                else { setDisplayDelete('none') }
+              }}>No</button>
             </form>
           </div>
         </div>
       </FormContainer>
-      
+
       <Header currentUser={currentUser} displaySettings={displaySettings} displaySettings2={displaySettings2}></Header>
       <Container>
         <div className="container">
-          <Rooms rooms={rooms} currentUser={currentUser}  displaySettings3={displaySettings3}/>
+          <Rooms rooms={rooms} currentUser={currentUser} displaySettings3={displaySettings3} changeRoom={handleRoomChange} />
+          {
+            
+            currentRoom === undefined ?
+              <>
+                <Welcome currentUser={currentUser} />
+              </>
+              :
+              <>
+                <ChatContainer currentRoom={currentRoom} currentRoomId={currentRoomId} />
+              </>
+          }
         </div>
       </Container>
     </>

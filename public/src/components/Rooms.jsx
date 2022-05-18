@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import Icon from 'react-icons-kit'
 import {trash} from 'react-icons-kit/feather'
 
-export default function Rooms({ rooms, currentUser, displaySettings3 }) {
+export default function Rooms({ rooms, currentUser, displaySettings3, changeRoom }) {
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
     const [selectedRoom, setSelectedRoom] = useState(undefined);
@@ -14,7 +14,10 @@ export default function Rooms({ rooms, currentUser, displaySettings3 }) {
 
         }
     }, [currentUser]);
-    const changedRoom = (index, room) => { };
+    const changedRoom = (index, room) => {
+        setSelectedRoom(index);
+        changeRoom(room, index);
+    };
     return (
         <>
             {
@@ -38,7 +41,7 @@ export default function Rooms({ rooms, currentUser, displaySettings3 }) {
                                         {
                                             rooms.map((room, index) => {
                                                 return (
-                                                    <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index}>
+                                                    <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index} onClick={()=>{changedRoom(index, room)}} >
                                                         <div className="roomName">
                                                             <h3>{room}</h3>
                                                             <span><Icon icon={trash} size={20} style={{color: "red", cursor:"pointer"}} onClick={()=>{displaySettings3(room, index)}} ></Icon></span>
@@ -114,10 +117,10 @@ const Container = styled.div`
                     margin-left: auto;
                 }
             }
+        }
             .selected{
                 background-color: #131335;
             }
-        }
         .noRoom{
             gap: 1rem;
             color: white;
