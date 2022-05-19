@@ -1,7 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
+import ChatInput from './ChatInput';
+import Messages from './Messages';
 
 export default function ChatContainer({ currentRoom, currentRoomId }) {
+    const handleSendMessage = async (message)=>{
+        alert(message)
+    }
     return (
         <>
             {
@@ -14,8 +19,8 @@ export default function ChatContainer({ currentRoom, currentRoomId }) {
                                 </div>
                             </div>
                         </div>
-                        <div className="room-messages"></div>
-                        <div className="room-input"></div>
+                        <Messages />
+                        <ChatInput handleSendMessage={handleSendMessage} />
                     </Container>
                 )
             }
