@@ -51,7 +51,7 @@ export default function Header({ currentUser, displaySettings, displaySettings2 
 const HeaderContainer = styled.nav`
 display: grid;
 grid-template-columns: 15% 85%; 
-width: auto;
+width: 98%;
 padding: 0.8rem;
 align-items: center;
 background-color: #262650;

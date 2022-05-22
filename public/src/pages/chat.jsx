@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { allRoomsRoute, createRoomRoute, deleteRoomRoute, joinRoomRoute } from '../utils/APIRoute';
+import { addMemberRoute, allRoomsRoute, createRoomRoute, deleteRoomRoute, joinRoomRoute, host } from '../utils/APIRoute';
 import Rooms from '../components/Rooms'
 import Header from '../components/Header'
 import { ToastContainer, toast } from 'react-toastify'
@@ -10,9 +10,11 @@ import 'react-toastify/dist/ReactToastify.css'
 import Icon from 'react-icons-kit';
 import { xCircle } from 'react-icons-kit/feather';
 import Welcome from '../components/Welcome';
-import ChatContainer from '../components/ChatContainer'
+import ChatContainer from '../components/ChatContainer';
+import {io} from 'socket.io-client';
 
 function Chat() {
+  const socket = useRef();
   const toastCss = {
     position: "top-right",
     theme: "dark",
@@ -26,19 +28,31 @@ function Chat() {
   const [transformCreate, setTransformCreate] = useState(0);
   const [transformJoin, setTransformJoin] = useState(0);
   const [displayDelete, setDisplayDelete] = useState('none');
+  const [addMember, setAddMember] = useState("");
+  const [displayAdd, setDisplayAdd] = useState("none");
   const [roomname, setRoomname] = useState(undefined);
   const [roomId, setRoomId] = useState(undefined);
   const [currentRoom, setCurrentRoom] = useState(undefined);
   const [currentRoomId, setCurrentRoomId] = useState(undefined);
+  const [currentRoomUsers, setCurrentRoomUsers] = useState([]);
+  const [currentRoomUsersId, setCurrentRoomUsersId] = useState([]);
+  const [roomUsers, setRoomUsers] = useState([]);
+  const [roomUsersId, setRoomUsersId] = useState([]);
+
   const handleRoomChange = (room, index) => {
     setCurrentRoom(room);
-    setCurrentRoomId(roomIds[index])
+    setCurrentRoomId(roomIds[index]);
+    setCurrentRoomUsers(roomUsers[index]);
+    setCurrentRoomUsersId(roomUsersId[index]);
   }
   const changeHandler = (e) => {
     setCreateRoom(e.target.value);
   }
   const changeHandler2 = (e) => {
     setJoinRoom(e.target.value);
+  }
+  const changeHandler3 = (e) => {
+    setAddMember(e.target.value);
   }
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
@@ -56,6 +70,13 @@ function Chat() {
 
     }
   }, []);
+  useEffect(()=>{
+    if(currentUser){
+      socket.current = io(`${host}/`);
+      socket.current.emit("add-user", currentUser._id);
+
+    }
+  },[currentUser]);
   const displaySettings = () => {
     if (displayCreate === 'none') {
       setDisplayCreate('flex')
@@ -76,6 +97,14 @@ function Chat() {
       setTransformCreate(0)
     }
   }
+  const displaySettings4 = () => {
+    if (displayAdd === 'none') {
+      setDisplayAdd('flex')
+    }
+    else {
+      setDisplayAdd('none')
+    }
+  }
   useEffect(() => {
     defaultFunction();
     async function defaultFunction() {
@@ -83,7 +112,9 @@ function Chat() {
         if (currentUser.isProfilePicSet) {
           const { data } = await axios.get(`${allRoomsRoute}/${currentUser._id}`);
           setRooms(data.data);
-          setRoomIds(data.roomIds)
+          setRoomIds(data.roomIds);
+          setRoomUsers(data.roomUsers);
+          setRoomUsersId(data.roomUsersId);
         }
         else {
           navigate("/setProfile")
@@ -91,9 +122,24 @@ function Chat() {
       }
     }
   }, [currentUser]);
-  const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
+  
+  useEffect(() => {
+    defaultFunction();
+    async function defaultFunction() {
+      if (currentUser) {
+        if (currentUser.isProfilePicSet) {
+          const { data } = await axios.get(`${allRoomsRoute}/${currentUser._id}`);
+          setRooms(data.data);
+          setRoomIds(data.roomIds);
+          setRoomUsers(data.roomUsers);
+          setRoomUsersId(data.roomUsersId);
+        }
+        else {
+          navigate("/setProfile")
+        }
+      }
+    }
+  }, [rooms]);
   const onCreate = async (e) => {
     e.preventDefault()
     if (createRoom === "") {
@@ -109,8 +155,8 @@ function Chat() {
       else {
         toast.success(data.msg, toastCss);
         displaySettings();
-        await sleep(5000)
-        window.location.reload(true);
+        setCreateRoom("");
+        // window.location.reload(true);
       }
     }
   }
@@ -132,9 +178,10 @@ function Chat() {
     }
     else {
       toast.success(data.msg, toastCss);
-      displaySettings3();
-      await sleep(5000)
-      window.location.reload(true);
+      displaySettings3()
+      setCurrentRoom(undefined);
+      setCurrentRoomId(undefined);
+      // window.location.reload(true);
     }
   }
   const onJoin = async (e) => {
@@ -146,8 +193,25 @@ function Chat() {
     else {
       toast.success(data.msg, toastCss);
       displaySettings2();
-      await sleep(5000)
-      window.location.reload(true);
+      setJoinRoom("");
+      // window.location.reload(true);
+    }
+  }
+  const onAdd = async (e)=>{
+    e.preventDefault();
+    const {data} = await axios.post(`${addMemberRoute}/${currentUser._id}`, {
+      userName: addMember,
+      roomName: currentRoom,
+      roomId: currentRoomId
+    });
+    if(!data.status){
+      toast.error(data.msg, toastCss);
+    }
+    else{
+      toast.success(data.msg, toastCss);
+      displaySettings4();
+      setAddMember("");
+      // window.location.reload();
     }
   }
   return (
@@ -196,21 +260,33 @@ function Chat() {
             </form>
           </div>
         </div>
+        <div className='displayCreate' style={{ display: `${displayAdd}` }}>
+          <div className="dialog-box">
+            <span><Icon icon={xCircle} size={25} onClick={() => {
+              if (displayAdd === 'none') { setDisplayAdd('flex') }
+              else { setDisplayAdd('none') }
+            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
+            <h2>Add New Member</h2>
+            <form onSubmit={(e) => { onAdd(e) }}>
+              <input type="text" placeholder='Enter Username' name='addMember' value={addMember} onChange={(event) => { changeHandler3(event) }} />
+              <button type='submit'>Add</button>
+            </form>
+          </div>
+        </div>
       </FormContainer>
-
-      <Header currentUser={currentUser} displaySettings={displaySettings} displaySettings2={displaySettings2}></Header>
       <Container>
+      <Header currentUser={currentUser} displaySettings={displaySettings} displaySettings2={displaySettings2}></Header>
+      
         <div className="container">
-          <Rooms rooms={rooms} currentUser={currentUser} displaySettings3={displaySettings3} changeRoom={handleRoomChange} />
+          <Rooms rooms={rooms} currentUser={currentUser}  displaySettings3={displaySettings3} changeRoom={handleRoomChange} />
           {
-            
             currentRoom === undefined ?
               <>
                 <Welcome currentUser={currentUser} />
               </>
               :
               <>
-                <ChatContainer currentRoom={currentRoom} currentRoomId={currentRoomId} />
+                <ChatContainer currentUser={currentUser} currentRoom={currentRoom} roomUsers={currentRoomUsers} roomUsersId={currentRoomUsersId} currentRoomId={currentRoomId} displaySetting={displaySettings4} socket={socket} />
               </>
           }
         </div>
@@ -226,7 +302,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  gap: 1rem;
+  gap: 0.2rem;
   background-color: #131325;
   .container{
     margin-top: 2rem;

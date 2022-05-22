@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Icon from 'react-icons-kit'
-import {trash} from 'react-icons-kit/feather'
+import { trash, chevronDown, chevronUp } from 'react-icons-kit/feather'
 
 export default function Rooms({ rooms, currentUser, displaySettings3, changeRoom }) {
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
-    const [selectedRoom, setSelectedRoom] = useState(undefined);
+    const [selectedRoom, setSelectedRoom] = useState(undefined);    
+    const onDisplayMembersClick = () => {
+        
+    }
     useEffect(() => {
         if (currentUser) {
             setCurrentUserImage(currentUser.ProfilePic);
             setCurrentUsername(currentUser.username);
-
+            setSelectedRoom(undefined)
         }
     }, [currentUser]);
     const changedRoom = (index, room) => {
@@ -37,17 +40,19 @@ export default function Rooms({ rooms, currentUser, displaySettings3, changeRoom
                                 </>
                                 :
                                 <>
-                                    <div className="rooms">
+                                    <div className="rooms" style={{ height: "auto" }}>
                                         {
                                             rooms.map((room, index) => {
                                                 return (
-                                                    <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index} onClick={()=>{changedRoom(index, room)}} >
+                                                    <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index} onClick={() => { changedRoom(index, room); onDisplayMembersClick() }} >
                                                         <div className="roomName">
                                                             <h3>{room}</h3>
-                                                            <span><Icon icon={trash} size={20} style={{color: "red", cursor:"pointer"}} onClick={()=>{displaySettings3(room, index)}} ></Icon></span>
-                                                        </div>
+                                                            <span>
+                                                                <Icon icon={trash} size={20} style={{ color: "red", cursor: "pointer" }} onClick={() => { displaySettings3(room, index) }} ></Icon>
+                                                            </span>
+                                                            </div>
                                                     </div>
-                                                )
+                                                );
                                             })
                                         }
                                     </div>
@@ -118,9 +123,12 @@ const Container = styled.div`
                 }
             }
         }
-            .selected{
-                background-color: #131335;
-            }
+        .selected{
+            background-color: #131335;
+        }
+        .members{
+            height: auto;
+        }
         .noRoom{
             gap: 1rem;
             color: white;

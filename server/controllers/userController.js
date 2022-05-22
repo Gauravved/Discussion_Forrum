@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt'); // used for encrypting data. We have used to e
 const jwt = require('jsonwebtoken');
 const { default: mongoose } = require('mongoose');
 const nodemailer = require('nodemailer');
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 // what to do with the request comming from /register path is decided here
 module.exports.register = async (req, res, next) => {
@@ -32,28 +32,28 @@ module.exports.register = async (req, res, next) => {
 
 };
 
-module.exports.login = async (req, res, next)=>{
-    try{
+module.exports. login = async (req, res, next) => {
+    try {
         console.log(req.body);
-        const {username, password} = req.body;
-        const isValidUser = await User.findOne({username});
-        if(!isValidUser){
+        const { username, password } = req.body;
+        const isValidUser = await User.findOne({ username });
+        if (!isValidUser) {
             res.json({ msg: "Invalid Username!! Please check the Spelling", status: false });
         }
         const isValidPassword = await bcrypt.compare(password, isValidUser.password);
-        if(!isValidPassword){
+        if (!isValidPassword) {
             res.json({ msg: "Incorrect Password!! Please Re-check the password", status: false });
         }
         delete isValidUser.password;
         res.json({ status: true, user: isValidUser, profileSet: isValidUser.isProfilePicSet });
     }
-    catch(excpetion){
+    catch (excpetion) {
         next(excpetion)
     }
 }
 
-module.exports.profile = async (req, res, next)=>{
-    try{
+module.exports.profile = async (req, res, next) => {
+    try {
         console.log("In controller", req.body, req.params)
         const id = req.params.id;
         const image = req.body.image;
@@ -66,20 +66,20 @@ module.exports.profile = async (req, res, next)=>{
         console.log(after.isProfilePicSet + data.ProfilePic)
         res.json({ profileSetStatus: after.isProfilePicSet, image: after.ProfilePic });
     }
-    catch(excpetion){
+    catch (excpetion) {
         next(excpetion)
     }
 }
 
-module.exports.forgotPassword = async (req, res, next)=>{
-    try{
+module.exports.forgotPassword = async (req, res, next) => {
+    try {
         const secret = process.env.JWT_SECRET
-        const {email} = req.body;
-        const validEmail = await User.findOne({email});
-        if(!validEmail){
-            res.json({status: false, msg: "This Email is not registered"});
+        const { email } = req.body;
+        const validEmail = await User.findOne({ email });
+        if (!validEmail) {
+            res.json({ status: false, msg: "This Email is not registered" });
         }
-        else{
+        else {
             const newSecret = secret + validEmail.password; //new secret generation so that one link can be used only once
             //payload generation for token
             console.log(newSecret)
@@ -88,12 +88,12 @@ module.exports.forgotPassword = async (req, res, next)=>{
                 id: validEmail.id
             }
             //token generation
-            const token = jwt.sign(payload, newSecret, { expiresIn: '15m'}); //expiresIn specified the time of expiration of that link
+            const token = jwt.sign(payload, newSecret, { expiresIn: '15m' }); //expiresIn specified the time of expiration of that link
             //Link generation from the Token
             const link = `http://localhost:3000/resetPassword/${validEmail.id}/${token}`
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
-                auth:{
+                auth: {
                     user: 'smartroom112000@gmail.com',
                     pass: 'Smartroom@1234'
                 }
@@ -106,157 +106,204 @@ module.exports.forgotPassword = async (req, res, next)=>{
                         This Link is valid for 15 minutes. Note: Do not share the Link
                 `
             }
-            transporter.sendMail(mailOptions, (error, info)=>{
-                if(error){
-                    console.log("Could not send Email"+error.msg);
-                    res.json({status: false, msg:"Could Not send the email"});
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log("Could not send Email" + error.msg);
+                    res.json({ status: false, msg: "Could Not send the email" });
                 }
-                else{
+                else {
                     console.log("Email sent");
-                    res.json({status: true, msg:"Email Send Successfully"});
+                    res.json({ status: true, msg: "Email Send Successfully" });
                 }
             })
             console.log(link)
         }
     }
-    catch(exception){
+    catch (exception) {
         next(exception);
     }
 }
 
-module.exports.resetPassword = async (req, res, next)=>{
-    try{
+module.exports.resetPassword = async (req, res, next) => {
+    try {
         const { password } = req.body;
-        const {id,token} = req.params;
+        const { id, token } = req.params;
         console.log(id);
-        console.log(password+" "+req.body)
+        console.log(password + " " + req.body)
         const validUser = await User.findById(id);
-        if(!validUser){
-            res.json({status: false, msg: "User Not Found"});
+        if (!validUser) {
+            res.json({ status: false, msg: "User Not Found" });
         }
-        else{
+        else {
             const secret = process.env.JWT_SECRET + validUser.password;
-            console.log(validUser.id+" "+validUser.password)
+            console.log(validUser.id + " " + validUser.password)
             const payload = jwt.verify(token, secret);
             console.log(password);
             const encryptedPassword = await bcrypt.hash(password, 10);
-            const user = await User.findByIdAndUpdate(id,{
+            const user = await User.findByIdAndUpdate(id, {
                 password: encryptedPassword
             });
             delete user.password;
-            res.json({status: true, msg: "Password Reset Successful"})
+            res.json({ status: true, msg: "Password Reset Successful" })
         }
-    }catch(exception){
-        res.json({status: false, msg: "Either the Link is used or Expired"})
+    } catch (exception) {
+        res.json({ status: false, msg: "Either the Link is used or Expired" })
         next(exception)
     }
 }
 
-module.exports.getRooms = async (req,res,next)=>{
+module.exports.getRooms = async (req, res, next) => {
     try {
         const { id } = req.params;
         const rooms = await User.findById(id).select(["Rooms"]);
         const allRooms = rooms.Rooms;
-        console.log(allRooms);
-        const allRoomsName = []
-        for(var i=0; i<allRooms.length; i++){
+        const allRoomsName = [];
+        let roomUsers = [];
+        let roomUsersId = [];
+        let roomname;
+        for (var i = 0; i < allRooms.length; i++) {
             const roomDb = await Room.findById(allRooms[i]);
-            const roomname = roomDb.roomname;
+            const temp = [];
+            for(let j=0;j<roomDb.allowedUsers.length;j++){ 
+                const user = await User.findOne({username: roomDb.allowedUsers[j]});
+                const userId = user._id;
+                temp.push(userId);
+            }
+            roomname = roomDb.roomname;
             allRoomsName.push(roomname);
+            roomUsers.push(roomDb.allowedUsers);
+            roomUsersId.push(temp);
         }
-        return res.json({data: allRoomsName, roomIds: allRooms });
+        return res.json({ data: allRoomsName, roomIds: allRooms, roomUsers: roomUsers, roomUsersId: roomUsersId });
     } catch (error) {
         next(error)
     }
 }
 
-module.exports.createRoom = async (req, res, next)=>{
-    try{
+module.exports.createRoom = async (req, res, next) => {
+    try {
         const { id } = req.params;
         const { roomName } = req.body;
         const username = await User.findById(id).select(["username"]);
         const userRooms = await User.findById(id).select(["Rooms"]);
         const allRooms = userRooms.Rooms;
-        const roomId = uuidv4();
-        const getRoomId = await Room.find({roomname: roomName}).select(['_id']);
+        const getRoomId = await Room.find({ roomname: roomName }).select(['_id']);
         let b = true
         console.log(getRoomId)
-        for(let i = 0;i< getRoomId.length;i++){
-            if(allRooms.includes(getRoomId[i]._id)){
-                b=false
+        for (let i = 0; i < getRoomId.length; i++) {
+            if (allRooms.includes(getRoomId[i]._id)) {
+                b = false
             }
         }
-        if(!b){
-            res.json({status: false, msg: `${username.username} already have this Room name`});
+        if (!b) {
+            res.json({ status: false, msg: `${username.username} already have this Room name` });
         }
-        else{
-            console.log(allRooms+" Done ");
-            const room  = await Room.create({
+        else {
+            console.log(allRooms + " Done ");
+            const room = await Room.create({
                 roomname: roomName,
-                activityStatus:  true,
-                allowedUsers: [username.username]  
+                activityStatus: true,
+                allowedUsers: [username.username]
             });
             allRooms.push(room._id);
             const user = await User.findByIdAndUpdate(id, {
                 Rooms: allRooms
             });
-            res.json({status: true, msg: "Room has been created"})
+            res.json({ status: true, msg: "Room has been created" })
         }
-    }catch(exception){
+    } catch (exception) {
         next(exception)
     }
 }
 
-module.exports.deleteRoom = async(req,res,next)=>{
+module.exports.deleteRoom = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { roomName, roomId } = req.body;
-        console.log(roomName+ " "+roomId);
         const user = await User.findById(id).select(['username', 'Rooms']);
         const rooms = await Room.findById(roomId).select(['allowedUsers']);
         const allUser = rooms.allowedUsers;
         const allRooms = user.Rooms;
-        console.log("Done");
         allRooms.remove(roomId);
-        console.log(allUser);
         allUser.remove(user.username);
-        console.log(allUser.length +" "+allUser);
-        if(allUser.length === 0){
-            const deleteRoom = await Room.deleteOne({_id: roomId});
+        if (allUser.length === 0) {
+            const deleteRoom = await Room.deleteOne({ _id: roomId });
         }
-        else{
-            const updateRoom = await Room.findByIdAndUpdate(roomId,{allowedUsers: allUser});
+        else {
+            const updateRoom = await Room.findByIdAndUpdate(roomId, { allowedUsers: allUser });
         }
-        const updatedUser = await User.findByIdAndUpdate(id, {Rooms: allRooms});
-        res.json({status: true, msg: "Room Deleted"});
+        const updatedUser = await User.findByIdAndUpdate(id, { Rooms: allRooms });
+        res.json({ status: true, msg: "Room Deleted" });
     } catch (error) {
         next(error)
     }
 }
 
-module.exports.joinRoom = async (req,res,next)=>{
-    try{
-        const {id} = req.params;
+module.exports.joinRoom = async (req, res, next) => {
+    try {
+        const { id } = req.params;
         const { roomId } = req.body;
-        const data = await User.findById(id).select(["username","Rooms"]);
+        const data = await User.findById(id).select(["username", "Rooms"]);
         const allRooms = data.Rooms;
-        const rooms = await Room.findById(roomId);
-        console.log(allRooms);
-        if(allRooms.includes(roomId)){
-            res.json({status: false, msg: `${data.username} is already member of this room`});;
+        try{
+            const rooms = await Room.findById(roomId); console.log(allRooms);
+            if(!rooms){
+                res.json({status: false, msg: "Invalid Id"});
+            }
+            if (allRooms.includes(roomId)) {
+                res.json({ status: false, msg: `${data.username} is already member of this room` });;
+            }
+            else if (rooms.length === 0) {
+                res.json({ status: false, msg: "This Room does not exist \n Please re-check id" })
+            }
+            else {
+                const allUser = rooms.allowedUsers;
+                allUser.push(data.username);
+                const updateRoom = await Room.findByIdAndUpdate(roomId, { allowedUsers: allUser });
+                allRooms.push(updateRoom._id);
+                const updatedUser = await User.findByIdAndUpdate(id, { Rooms: allRooms });
+                res.json({ status: true, msg: "Room joined" })
+            }
+        }catch(error){
+            res.json({status: false, msg: "unable to join this room"});
         }
-        else if(rooms.length === 0){
-            res.json({status: false, msg: "This Room does not exist \n Please re-check id"})
+       
+    } catch (error) {
+        next(error)
+    }
+}
+
+module.exports.addMember = async(req,res,next)=>{
+    try {
+        const { id } = req.params;
+        const { userName, roomName, roomId } = req.body;
+        const validUser = await User.findOne({ username: userName});
+        if(!validUser){
+            res.json({status: false, msg: "This user does not exist" })
         }
         else{
-            const allUser = rooms.allowedUsers;
-            allUser.push(data.username);
-            const updateRoom = await Room.findByIdAndUpdate(roomId, {allowedUsers: allUser});
-            allRooms.push(updateRoom._id);
-            const updatedUser = await User.findByIdAndUpdate(id,{Rooms: allRooms});
-            res.json({status: true, msg: "Room joined"})
+            const allRooms = validUser.Rooms;
+            const validRoom = await Room.findById(roomId);
+            const allUsers = validRoom.allowedUsers;
+            if(allRooms.includes(roomId)){
+                res.json({status: false, msg: `${userName} is already a member`})
+            }
+            else if(allUsers.includes(userName)){
+                req.json({status: false, msg: `${userName} is already a member`})
+            }
+            else{
+                allRooms.push(roomId);
+                allUsers.push(userName);
+                const updateRoom = await Room.findByIdAndUpdate(roomId,{
+                    allowedUsers: allUsers
+                });
+                const updatedUser = await User.findOneAndUpdate({username: userName},{
+                    Rooms: allRooms
+                });
+                res.json({status: true, msg: "User added"});
+            }
         }
-    }catch(error){
+    } catch (error) {
         next(error)
     }
 }

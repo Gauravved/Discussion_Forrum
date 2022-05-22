@@ -121,15 +121,15 @@ padding-bottom: 0.3rem;
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: #b4b1b1;
-        color: #262650;
-        border: none;
+        background-color: #901090;
+        color: white;
+        border: 2px solid #901090;
         outline: none;
         cursor: pointer;
         transition: 0.3s ease-in-out;
         &:hover{
             color: white;
-            background-color: transparent;
+            background-color: #ac79ff;
         }
     }
 }
