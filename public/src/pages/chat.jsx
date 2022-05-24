@@ -11,14 +11,14 @@ import Icon from 'react-icons-kit';
 import { xCircle } from 'react-icons-kit/feather';
 import Welcome from '../components/Welcome';
 import ChatContainer from '../components/ChatContainer';
-import {io} from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 function Chat() {
   const socket = useRef();
   const toastCss = {
     position: "top-right",
     theme: "dark",
-    autoClose: 5000,
+    autoClose: 3000,
     pauseOnHover: true,
   };
   const [createRoom, setCreateRoom] = useState("");
@@ -70,13 +70,13 @@ function Chat() {
 
     }
   }, []);
-  useEffect(()=>{
-    if(currentUser){
+  useEffect(() => {
+    if (currentUser) {
       socket.current = io(`${host}/`);
       socket.current.emit("add-user", currentUser._id);
 
     }
-  },[currentUser]);
+  }, [currentUser]);
   const displaySettings = () => {
     if (displayCreate === 'none') {
       setDisplayCreate('flex')
@@ -105,6 +105,8 @@ function Chat() {
       setDisplayAdd('none')
     }
   }
+  const [received, setReceived] = useState(false);
+  const [receivedRoomId, setReceivedRoomId] = useState("");
   useEffect(() => {
     defaultFunction();
     async function defaultFunction() {
@@ -122,7 +124,7 @@ function Chat() {
       }
     }
   }, [currentUser]);
-  
+
   useEffect(() => {
     defaultFunction();
     async function defaultFunction() {
@@ -140,6 +142,13 @@ function Chat() {
       }
     }
   }, [rooms]);
+  const sleep = async (milliseconds) => {
+    return new Promise(resolve => { setTimeout(resolve, milliseconds) })
+  }
+  const onDisplay = (received, receivedRoomId)=>{
+    setReceived(received);
+    setReceivedRoomId(receivedRoomId);
+  }
   const onCreate = async (e) => {
     e.preventDefault()
     if (createRoom === "") {
@@ -178,10 +187,11 @@ function Chat() {
     }
     else {
       toast.success(data.msg, toastCss);
-      displaySettings3()
+      displaySettings3();
       setCurrentRoom(undefined);
       setCurrentRoomId(undefined);
-      // window.location.reload(true);
+      await sleep(5000);
+      window.location.reload(true);
     }
   }
   const onJoin = async (e) => {
@@ -197,17 +207,17 @@ function Chat() {
       // window.location.reload(true);
     }
   }
-  const onAdd = async (e)=>{
+  const onAdd = async (e) => {
     e.preventDefault();
-    const {data} = await axios.post(`${addMemberRoute}/${currentUser._id}`, {
+    const { data } = await axios.post(`${addMemberRoute}/${currentUser._id}`, {
       userName: addMember,
       roomName: currentRoom,
       roomId: currentRoomId
     });
-    if(!data.status){
+    if (!data.status) {
       toast.error(data.msg, toastCss);
     }
-    else{
+    else {
       toast.success(data.msg, toastCss);
       displaySettings4();
       setAddMember("");
@@ -216,14 +226,14 @@ function Chat() {
   }
   return (
     <>
-      <ToastContainer />
+      <ToastContainer limit={1} />
       <FormContainer>
         <div className='displayCreate' style={{ display: `${displayCreate}`, transform: `${transformCreate}` }}>
           <div className="dialog-box">
             <span><Icon icon={xCircle} size={25} onClick={() => {
               if (displayCreate === 'none') { setDisplayCreate('flex') }
               else { setDisplayCreate('none') }
-            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
+            }}></Icon></span>
             <h2>Create New Room</h2>
             <form onSubmit={(e) => { onCreate(e) }}>
               <input type="text" placeholder='Enter Name For Room' name='createRoom' value={createRoom} onChange={(event) => { changeHandler(event) }} />
@@ -236,7 +246,7 @@ function Chat() {
             <span><Icon icon={xCircle} size={25} onClick={() => {
               if (displayJoin === 'none') { setDisplayJoin('flex') }
               else { setDisplayJoin('none') }
-            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
+            }} ></Icon></span>
             <h2>Join Room</h2>
             <form onSubmit={(e) => { onJoin(e) }}>
               <input type="text" placeholder='Enter Room Id' name='joinRoom' value={joinRoom} onChange={(event) => { changeHandler2(event) }} />
@@ -249,7 +259,7 @@ function Chat() {
             <span><Icon icon={xCircle} size={25} onClick={() => {
               if (displayDelete === 'none') { setDisplayDelete('flex') }
               else { setDisplayDelete('none') }
-            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
+            }} ></Icon></span>
             <h2>Do you Want to Delete This room</h2>
             <form onSubmit={(e) => { onDelete(e) }} className='deleteForm'>
               <button type='submit' style={{ backgroundColor: "Red", border: "2px solid red" }}>Yes</button>
@@ -263,9 +273,9 @@ function Chat() {
         <div className='displayCreate' style={{ display: `${displayAdd}` }}>
           <div className="dialog-box">
             <span><Icon icon={xCircle} size={25} onClick={() => {
-              if (displayAdd === 'none') { setDisplayAdd('flex') }
+              if (displayAdd === 'none') { setDisplayAdd('true') }
               else { setDisplayAdd('none') }
-            }} style={{ color: "white", right: "32%", top: "18%", position: "fixed", cursor: "pointer" }} ></Icon></span>
+            }} ></Icon></span>
             <h2>Add New Member</h2>
             <form onSubmit={(e) => { onAdd(e) }}>
               <input type="text" placeholder='Enter Username' name='addMember' value={addMember} onChange={(event) => { changeHandler3(event) }} />
@@ -275,10 +285,10 @@ function Chat() {
         </div>
       </FormContainer>
       <Container>
-      <Header currentUser={currentUser} displaySettings={displaySettings} displaySettings2={displaySettings2}></Header>
-      
+        <Header currentUser={currentUser} displaySettings={displaySettings} displaySettings2={displaySettings2}></Header>
+
         <div className="container">
-          <Rooms rooms={rooms} currentUser={currentUser}  displaySettings3={displaySettings3} changeRoom={handleRoomChange} />
+          <Rooms rooms={rooms} roomIds={roomIds} currentUser={currentUser} displaySettings3={displaySettings3} changeRoom={handleRoomChange} receivedMessage={received} receivedRoom={receivedRoomId} onDisplay={onDisplay} />
           {
             currentRoom === undefined ?
               <>
@@ -286,7 +296,7 @@ function Chat() {
               </>
               :
               <>
-                <ChatContainer currentUser={currentUser} currentRoom={currentRoom} roomUsers={currentRoomUsers} roomUsersId={currentRoomUsersId} currentRoomId={currentRoomId} displaySetting={displaySettings4} socket={socket} />
+                <ChatContainer currentUser={currentUser} currentRoom={currentRoom} roomUsers={currentRoomUsers} roomUsersId={currentRoomUsersId} currentRoomId={currentRoomId} displaySetting={displaySettings4} socket={socket} onDisplay={onDisplay} />
               </>
           }
         </div>
@@ -330,6 +340,15 @@ const FormContainer = styled.div`
   background-color: #2a2a2a6b;
   justify-content: center;
   align-items: center;
+  span{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+      svg{
+      color: white;
+      cursor: pointer;
+    }
+  }
   .dialog-box{
     justify-content: center;
     padding: 5rem 3rem;

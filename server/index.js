@@ -42,27 +42,21 @@ io.on("connection",(socket)=>{
         console.log("added", userId);
     });
     socket.on("send-msg",async (data)=>{
+        socket.join(data.receiverRoomId)
         const user = await User.findById(data.from).select(["username"]);
         const userName = user.username;
         const sendUserSocket = [];
-        console.log("sntmsg",data.message);
         for(let i=0;i<data.to.length;i++){
             console.log(data.to);
             sendUserSocket.push(onlineUsers.get(data.to[i]));
         }
-        console.log(sendUserSocket);
-        console.log("sentData",{data},userName);
+        // socket.to(data.receiverRoomId).emit("msg-receive", {message: data.message, from: userName});
+        // console.log(data.receiverRoomId);
         for(let i=0;i<sendUserSocket.length;i++){
             if(sendUserSocket[i]){
-                socket.to(sendUserSocket[i]).emit("msg-receive", {message: data.message, from: userName});
-                console.log("receving");
+                socket.to(sendUserSocket[i]).emit("msg-receive", {message: data.message, receiverRoomId: data.receiverRoomId, to: data.to[i], from: userName});
             }
         }
     })
 });
-async function fetchUser(id){
-    const user = await User.findById(id).select(["username"]);
-    const userName = user.username;
-    return userName;
-}
 

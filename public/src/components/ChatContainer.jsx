@@ -7,12 +7,21 @@ import { userPlus } from 'react-icons-kit/feather';
 import { addMessageRoute, getMessageRoute } from '../utils/APIRoute';
 import axios from 'axios';
 import {v4 as uuidv4} from 'uuid';
+import {ToastContainer, toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
-export default function ChatContainer({currentUser,  currentRoom, currentRoomId, roomUsers, roomUsersId, displaySetting, socket }) {
+export default function ChatContainer({currentUser,  currentRoom, currentRoomId, roomUsers, roomUsersId, displaySetting, socket, onDisplay }) {
     const [messages, setMessages] = useState([]);
     const [arrivalMessage, setArrivalMessage] = useState(null);
     const [user, setUser] = useState("");
-    const scrollRef = useRef(null);
+    const [displayToast, setDisplayToast] = useState(false);
+    const scrollRef = useRef(null);const toastCss = {
+        position: "top-right",
+        theme: "dark",
+        autoClose: 5000,
+        pauseOnHover: true,
+        limit: 1
+      };
     useEffect(() => {
         if(currentRoom){
             fetchData();
@@ -28,8 +37,14 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
     useEffect(()=>{
         if(socket.current){
             socket.current.on("msg-receive",(msg)=>{
-                setArrivalMessage({fromSelf: msg.from, message: msg.message});
-                console.log(msg.from);
+                console.log(msg.receiverRoomId);
+                if(msg.receiverRoomId === currentRoomId){
+                    setArrivalMessage({fromSelf: msg.from, message: msg.message});
+                    setDisplayToast(false)
+                }
+                else{
+                    setDisplayToast(true)
+                }   
             });
         }
     },[]);
@@ -49,21 +64,29 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
         });
         socket.current.emit("send-msg",{
             to: roomUsersId,
+            receiverRoomId: currentRoomId,
             from: currentUser._id,
             message: message
         });
         const msg = [...messages];
         msg.push({fromSelf: true, message: message});
-        setMessages(msg); 
+        setMessages(msg);
     }
     const handleAddMembers = async (e)=>{
         e.preventDefault();
         displaySetting();
     }
+    useEffect(()=>{
+        if(displayToast){
+            toast.info("You may have new messages",toastCss)
+            setDisplayToast(false);
+        }
+    },[displayToast])
     return (
         <>
             {
                 currentRoom && (
+                    <>
                     <Container>
                         <div className="room-header">
                             <div className="room-details">
@@ -114,6 +137,7 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
                         </div>
                         <ChatInput handleSendMessage={handleSendMessage} />
                     </Container>
+                    </>
                 )
             }
         </>
@@ -213,6 +237,11 @@ scroll-behavior: smooth;
             font-size: 1.1rem;
             border-radius: 1rem;
             color: #d1d1d1;
+        }
+        @media screen and (min-width: 380px) and (max-width: 720px) {
+            .content{
+                font-size: 0.9rem;
+            }
         }
     }    
     .received{

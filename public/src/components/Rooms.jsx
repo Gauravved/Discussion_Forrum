@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Icon from 'react-icons-kit'
-import { trash, chevronDown, chevronUp } from 'react-icons-kit/feather'
+import { trash, circle } from 'react-icons-kit/feather'
 
-export default function Rooms({ rooms, currentUser, displaySettings3, changeRoom }) {
+export default function Rooms({ rooms,roomIds, currentUser, displaySettings3, changeRoom, receivedMessage, receivedRoom, onDisplay }) {
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
     const [selectedRoom, setSelectedRoom] = useState(undefined);    
@@ -48,12 +48,30 @@ export default function Rooms({ rooms, currentUser, displaySettings3, changeRoom
                                                         <div className="roomName">
                                                             <h3>{room}</h3>
                                                             <span>
+                                                                {
+                                                                    receivedMessage === true && roomIds[index] === receivedRoom
+                                                                    ? 
+                                                                    <>
+                                                                        <span>
+                                                                            <Icon icon={circle} style={{color: "green", backgroundColor: "green"}} size={15} />
+                                                                        </span>
+                                                                    </>
+                                                                    :
+                                                                    <>
+                                                                    </>
+                                                                }
                                                                 <Icon icon={trash} size={20} style={{ color: "red", cursor: "pointer" }} onClick={() => { displaySettings3(room, index) }} ></Icon>
                                                             </span>
                                                             </div>
                                                     </div>
                                                 );
                                             })
+                                        }
+                                        {
+                                            selectedRoom === receivedRoom?
+                                            onDisplay(false, selectedRoom)
+                                            :
+                                            onDisplay(true, selectedRoom)
                                         }
                                     </div>
                                 </>
@@ -110,18 +128,34 @@ const Container = styled.div`
             vertical-align: center;
             .roomName{
                 color: white;
-                display: flex;
+                display: grid;
+                grid-template-columns: 80% 20%;
                 width: 100%;
                 align-items: center;
+                justify-content: space-around;
                 h3{
                     display: inline;
+                    width: 90%;
+                overflow-y: hidden;
+                overflow-x: auto;
+                white-space: nowrap;
+                &::-webkit-scrollbar{
+                    height: 0.3rem;
+                    &-thumb{
+                        background-color: #ffffff39;
+                        border-radius: 1rem;
+                    }
+                }
+                &::-webkit-scrollbar-thumb:hover{
+                    background-color: #ffffff20;
+                }
                 }
                 span{
                     display: inline;
                     margin-right: 10px;
                     margin-left: auto;
                 }
-            }
+                    }
         }
         .selected{
             background-color: #131335;
