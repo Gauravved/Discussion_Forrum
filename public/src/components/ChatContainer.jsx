@@ -37,12 +37,12 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
     useEffect(()=>{
         if(socket.current){
             socket.current.on("msg-receive",(msg)=>{
-                console.log(msg.receiverRoomId);
                 if(msg.receiverRoomId === currentRoomId){
                     setArrivalMessage({fromSelf: msg.from, message: msg.message});
                     setDisplayToast(false)
                 }
                 else{
+                    setArrivalMessage(null);
                     setDisplayToast(true)
                 }   
             });
@@ -57,14 +57,14 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
         }
     }, [messages]);
     const handleSendMessage = async (message) => {
-        await axios.post(addMessageRoute,{
+        const {data} = await axios.post(addMessageRoute,{
             from: currentUser._id,
             to: currentRoomId,
             message: message
         });
         socket.current.emit("send-msg",{
             to: roomUsersId,
-            receiverRoomId: currentRoomId,
+            receiverRoomId: data.data.receiver,
             from: currentUser._id,
             message: message
         });

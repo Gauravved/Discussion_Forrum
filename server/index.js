@@ -47,11 +47,10 @@ io.on("connection",(socket)=>{
         const userName = user.username;
         const sendUserSocket = [];
         for(let i=0;i<data.to.length;i++){
-            console.log(data.to);
             sendUserSocket.push(onlineUsers.get(data.to[i]));
         }
         // socket.to(data.receiverRoomId).emit("msg-receive", {message: data.message, from: userName});
-        // console.log(data.receiverRoomId);
+        console.log(data.receiverRoomId);
         for(let i=0;i<sendUserSocket.length;i++){
             if(sendUserSocket[i]){
                 socket.to(sendUserSocket[i]).emit("msg-receive", {message: data.message, receiverRoomId: data.receiverRoomId, to: data.to[i], from: userName});

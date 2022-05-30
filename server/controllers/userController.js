@@ -95,7 +95,11 @@ module.exports.forgotPassword = async (req, res, next) => {
                 service: 'gmail',
                 auth: {
                     user: 'smartroom112000@gmail.com',
-                    pass: 'Smartroom@1234'
+                    pass: 'Smartroom@1234',
+                    clientId: "493873994150-ftl8d4q4gbs8nag8egrspfeuf8jej2sr.apps.googleusercontent.com",
+                    clientSecret: "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",
+                    accessToken: "1//04veMtke2LiDBCgYIARAAGAQSNwF-L9Ir4V0Fl1xnXxAmcKdgMhmVU3KCVmjopk6wfutd-N9kURhLuhwiYAg7x7x26SAffn9GO3Q",
+                    refreshToken: "ya29.a0ARrdaM-AXa9pWnGblYl2EhlhftH7qa3xsejmuCvQO98vEWlQQ4sCHP1jR7T0PB4o0EZL3iIWSwfIcszPpV1WaFiKMIqluZDHUXBA4LggdHYAj4Pv2JEIypckar2AI_bZiCmYIPy1p0ku1wnhNJr0fLxsWqyr"
                 }
             });
             const mailOptions = {
@@ -108,7 +112,7 @@ module.exports.forgotPassword = async (req, res, next) => {
             }
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    console.log("Could not send Email" + error.msg);
+                    console.log("Could not send Email" + error.msg+ error);
                     res.json({ status: false, msg: "Could Not send the email" });
                 }
                 else {
@@ -129,7 +133,7 @@ module.exports.resetPassword = async (req, res, next) => {
         const { password } = req.body;
         const { id, token } = req.params;
         console.log(id);
-        console.log(password + " " + req.body)
+        console.log(password + " Ram " + req.body)
         const validUser = await User.findById(id);
         if (!validUser) {
             res.json({ status: false, msg: "User Not Found" });

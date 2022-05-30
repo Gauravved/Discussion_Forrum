@@ -288,7 +288,7 @@ function Chat() {
         <Header currentUser={currentUser} displaySettings={displaySettings} displaySettings2={displaySettings2}></Header>
 
         <div className="container">
-          <Rooms rooms={rooms} roomIds={roomIds} currentUser={currentUser} displaySettings3={displaySettings3} changeRoom={handleRoomChange} receivedMessage={received} receivedRoom={receivedRoomId} onDisplay={onDisplay} />
+          <Rooms rooms={rooms} roomIds={roomIds} currentUser={currentUser} displaySettings3={displaySettings3} changeRoom={handleRoomChange} receivedMessage={received} receivedRoom={receivedRoomId} />
           {
             currentRoom === undefined ?
               <>

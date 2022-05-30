@@ -3,13 +3,10 @@ import styled from 'styled-components'
 import Icon from 'react-icons-kit'
 import { trash, circle } from 'react-icons-kit/feather'
 
-export default function Rooms({ rooms,roomIds, currentUser, displaySettings3, changeRoom, receivedMessage, receivedRoom, onDisplay }) {
+export default function Rooms({ rooms,roomIds, currentUser, displaySettings3, changeRoom, receivedMessage, receivedRoom }) {
     const [currentUsername, setCurrentUsername] = useState(undefined);
     const [currentUserImage, setCurrentUserImage] = useState(undefined);
     const [selectedRoom, setSelectedRoom] = useState(undefined);    
-    const onDisplayMembersClick = () => {
-        
-    }
     useEffect(() => {
         if (currentUser) {
             setCurrentUserImage(currentUser.ProfilePic);
@@ -44,7 +41,7 @@ export default function Rooms({ rooms,roomIds, currentUser, displaySettings3, ch
                                         {
                                             rooms.map((room, index) => {
                                                 return (
-                                                    <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index} onClick={() => { changedRoom(index, room); onDisplayMembersClick() }} >
+                                                    <div className={`room ${index === selectedRoom ? "selected" : ""}`} key={index} onClick={() => { changedRoom(index, room);}} >
                                                         <div className="roomName">
                                                             <h3>{room}</h3>
                                                             <span>
@@ -66,12 +63,6 @@ export default function Rooms({ rooms,roomIds, currentUser, displaySettings3, ch
                                                     </div>
                                                 );
                                             })
-                                        }
-                                        {
-                                            selectedRoom === receivedRoom?
-                                            onDisplay(false, selectedRoom)
-                                            :
-                                            onDisplay(true, selectedRoom)
                                         }
                                     </div>
                                 </>

@@ -20,7 +20,7 @@ module.exports.addMessage = async (req, res, next)=>{
             receiver: to
         });
         if(data){
-            return res.json({msg: "Message added Successfully"})
+            return res.json({msg: "Message added Successfully", data: data });
         }
         else{
             return res.json({msg: " Failed to add Message"})
@@ -32,7 +32,6 @@ module.exports.addMessage = async (req, res, next)=>{
 module.exports.getMessages = async (req, res, next)=>{
     try {
         const { from, to } = req.body;
-        console.log(from +" "+to);
         const messages = await Message.find({
             receiver: {$all : to}
         })
@@ -58,7 +57,6 @@ module.exports.getMessages = async (req, res, next)=>{
                 message: decryptedMessages[index],
             }
         });
-        console.log(projectMessage);
         res.json(projectMessage);
     } catch (error) {
         next(error)
