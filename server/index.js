@@ -5,18 +5,21 @@ const userRoute = require('./routes/userRoute');
 const messageRoute = require('./routes/messageRoute');
 const socket = require('socket.io');
 const User = require('./models/userModel').userModel; 
+const path = require('path')
 
 const app = express();
 require('dotenv').config();
-app.use(cors({origin: true}));
+app.use(cors({
+    origin: "https://smart-room-chat.herokuapp.com",
+    methods: ['GET','POST','PUT','PATCH', 'DELETE']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin: https://smart-room-chat.herokuapp.com");
-    res.header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, X-Auth-Token");
-    res.header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin","*");
+    res.header("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, X-Auth-Token");
+    res.header("Access-Control-Allow-Methods","GET, POST, PUT, PATCH, DELETE, OPTIONS");
     next();   
 });
 app.use('/api/auth', userRoute);
@@ -30,15 +33,16 @@ mongoose.connect(process.env.MONGO_URL, {
 }).catch((err)=>{
     console.log(err.message);
 });
-
-
+app.use('/',(req,res,next)=>{
+    res.json({hello:"data"})
+})
 const server = app.listen(process.env.PORT, ()=>{
     console.log("Server at Port:"+process.env.PORT);
 });
 
 const io = socket(server, {
     cors:{
-        origin: "https://smart-room-chat.herokuapp.com/",
+        origin: "https://smart-room-chat.herokuapp.com",
         credentials: true
     }
 })
