@@ -12,6 +12,9 @@ import { xCircle } from 'react-icons-kit/feather';
 import Welcome from '../components/Welcome';
 import ChatContainer from '../components/ChatContainer';
 import { io } from 'socket.io-client';
+// import {w3cwebsocket as W3WebSocket } from 'websocket'
+
+// const client = new W3WebSocket('wss://smart-room-app.herokuapp.com/')
 
 function Chat() {
   const socket = useRef();
@@ -25,8 +28,6 @@ function Chat() {
   const [joinRoom, setJoinRoom] = useState("");
   const [displayCreate, setDisplayCreate] = useState('none');
   const [displayJoin, setDisplayJoin] = useState('none');
-  const [transformCreate, setTransformCreate] = useState(0);
-  const [transformJoin, setTransformJoin] = useState(0);
   const [displayDelete, setDisplayDelete] = useState('none');
   const [addMember, setAddMember] = useState("");
   const [displayAdd, setDisplayAdd] = useState("none");
@@ -72,7 +73,7 @@ function Chat() {
   }, []);
   useEffect(() => {
     if (currentUser) {
-      socket.current = io(`${host}/`);
+      socket.current = io(`${host}/`)
       socket.current.emit("add-user", currentUser._id);
 
     }
@@ -80,21 +81,17 @@ function Chat() {
   const displaySettings = () => {
     if (displayCreate === 'none') {
       setDisplayCreate('flex')
-      setTransformCreate(1)
     }
     else {
       setDisplayCreate('none')
-      setTransformCreate(0)
     }
   }
   const displaySettings2 = () => {
     if (displayJoin === 'none') {
       setDisplayJoin('flex')
-      setTransformCreate(1)
     }
     else {
       setDisplayJoin('none')
-      setTransformCreate(0)
     }
   }
   const displaySettings4 = () => {
@@ -228,7 +225,7 @@ function Chat() {
     <>
       <ToastContainer limit={1} />
       <FormContainer>
-        <div className='displayCreate' style={{ display: `${displayCreate}`, transform: `${transformCreate}` }}>
+        <div className='displayCreate' style={{ display: `${displayCreate}` }}>
           <div className="dialog-box">
             <span><Icon icon={xCircle} size={25} onClick={() => {
               if (displayCreate === 'none') { setDisplayCreate('flex') }
@@ -241,7 +238,7 @@ function Chat() {
             </form>
           </div>
         </div>
-        <div className='displayCreate' style={{ display: `${displayJoin}`, transform: `${transformJoin}` }}>
+        <div className='displayCreate' style={{ display: `${displayJoin}` }}>
           <div className="dialog-box">
             <span><Icon icon={xCircle} size={25} onClick={() => {
               if (displayJoin === 'none') { setDisplayJoin('flex') }

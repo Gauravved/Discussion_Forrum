@@ -1,4 +1,4 @@
-export const host = "https://smartroom-server.herokuapp.com";
+export const host = "https://smart-room-app.herokuapp.com";
 export const registrationRoute = `${host}/api/auth/register`;
 export const loginRoute = `${host}/api/auth/login`;
 export const profileRoute = `${host}/api/auth/setProfile`;

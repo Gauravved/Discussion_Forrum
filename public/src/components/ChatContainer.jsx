@@ -1,19 +1,18 @@
 import React, {useState, useEffect, useRef} from 'react'
 import styled from 'styled-components'
 import ChatInput from './ChatInput';
-import Messages from './Messages';
 import Icon from 'react-icons-kit';
 import { userPlus } from 'react-icons-kit/feather';
 import { addMessageRoute, getMessageRoute } from '../utils/APIRoute';
 import axios from 'axios';
 import {v4 as uuidv4} from 'uuid';
-import {ToastContainer, toast} from 'react-toastify'
+import { toast} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-export default function ChatContainer({currentUser,  currentRoom, currentRoomId, roomUsers, roomUsersId, displaySetting, socket, onDisplay }) {
+export default function ChatContainer({currentUser,  currentRoom, currentRoomId, roomUsers, roomUsersId, displaySetting,socket, onDisplay }) {
+    //const socket = io(`${host}/`)
     const [messages, setMessages] = useState([]);
     const [arrivalMessage, setArrivalMessage] = useState(null);
-    const [user, setUser] = useState("");
     const [displayToast, setDisplayToast] = useState(false);
     const scrollRef = useRef(null);const toastCss = {
         position: "top-right",
@@ -36,7 +35,8 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
     }, [currentRoom]);
     useEffect(()=>{
         if(socket.current){
-            socket.current.on("msg-receive",(msg)=>{
+            socket.current.on("msg-receive", (msg)=>{
+                console.log(currentRoomId + msg.receiverRoomId)
                 if(msg.receiverRoomId === currentRoomId){
                     setArrivalMessage({fromSelf: msg.from, message: msg.message});
                     setDisplayToast(false)

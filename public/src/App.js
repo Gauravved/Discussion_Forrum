@@ -5,9 +5,9 @@ import Chats from './pages/Chat.jsx'
 import {BrowserRouter as Routers, Route, Routes} from 'react-router-dom'
 import ProfilePic from './pages/ProfilePic.jsx'
 import ForgetPassword from './pages/ForgetPassword'
-import ResetPassword from'./pages/ResetPassword'
+import ResetPassword from'./pages/ResetPassword';
 
-export default function App() {
+export default function App() { 
   return (
     <div>
       <Routers>
