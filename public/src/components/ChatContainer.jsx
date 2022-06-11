@@ -14,7 +14,11 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
     const [messages, setMessages] = useState([]);
     const [arrivalMessage, setArrivalMessage] = useState(null);
     const [displayToast, setDisplayToast] = useState(false);
-    const scrollRef = useRef(null);const toastCss = {
+    const [latestRoomId, setLatestRoomId] = useState(undefined);
+    const [userFrom, setUserFrom] = useState(null);
+    const [roomFrom, setRoomFrom] = useState(null);
+    const scrollRef = useRef(null);
+    const toastCss = {
         position: "top-right",
         theme: "dark",
         autoClose: 5000,
@@ -30,24 +34,28 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
                 from: currentUser._id,
                 to: currentRoomId
             });
+            setLatestRoomId(currentRoomId);
+            console.log(currentRoomId+" in fetch data and "+latestRoomId);
             setMessages(response.data);
         };
     }, [currentRoom]);
     useEffect(()=>{
         if(socket.current){
             socket.current.on("msg-receive", (msg)=>{
-                console.log(currentRoomId + msg.receiverRoomId)
-                if(msg.receiverRoomId === currentRoomId){
+                console.log(latestRoomId + msg.receiverRoomId)
+                if(msg.receiverRoomId === latestRoomId){
                     setArrivalMessage({fromSelf: msg.from, message: msg.message});
                     setDisplayToast(false)
                 }
                 else{
+                    setUserFrom(msg.from);
+                    setRoomFrom(msg.fromRoom);
                     setArrivalMessage(null);
                     setDisplayToast(true)
                 }   
             });
         }
-    },[]);
+    });
     useEffect(()=>{
         arrivalMessage && setMessages((prev)=>[...prev, arrivalMessage]);
     },[arrivalMessage]);
@@ -60,11 +68,13 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
         const {data} = await axios.post(addMessageRoute,{
             from: currentUser._id,
             to: currentRoomId,
+            name: currentRoom,
             message: message
         });
         socket.current.emit("send-msg",{
             to: roomUsersId,
             receiverRoomId: data.data.receiver,
+            receiverRoomName: data.roomName,
             from: currentUser._id,
             message: message
         });
@@ -78,7 +88,7 @@ export default function ChatContainer({currentUser,  currentRoom, currentRoomId,
     }
     useEffect(()=>{
         if(displayToast){
-            toast.info("You may have new messages",toastCss)
+            toast.info(`${userFrom} send new message in ${roomFrom}`,toastCss)
             setDisplayToast(false);
         }
     },[displayToast])
